@@ -11,6 +11,7 @@ scalar JSON
 
 type Mutation {
   deleteUser(id: ID!): User!
+  signIn(email: String!, password: String!): AuthPayload!
   signUp(email: String!, password: String!): AuthPayload!
 }
 
@@ -24,5 +25,4 @@ scalar Upload
 type User {
   email: String!
   id: ID!
-  name: String!
 }

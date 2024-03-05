@@ -1,14 +1,7 @@
-import {
-  Camera,
-  CameraCapturedPicture,
-  CameraType,
-  ImageType,
-} from "expo-camera";
+import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
 
 export default function App() {
   const [type, setType] = useState(CameraType.back);
@@ -42,25 +35,24 @@ export default function App() {
     if (newPhoto) setPhoto(newPhoto);
   };
 
+  const cancelPicture = () => {
+    setPhoto(null);
+  };
+
   if (photo) {
     return (
-      <View style={styles.container}>
-        <Image
-          source={{ uri: photo.uri }}
-          style={{ flex: 1, width: "100%", height: "100%" }}
-        />
-        <Entypo
-          style={{
-            position: "absolute",
-            top: 20,
-            left: 20,
-            fontWeight: "bold",
-          }}
-          onPress={() => setPhoto(null)}
-          name="cross"
-          size={40}
-          color="#fff"
-        />
+      <View  style={styles.container} >
+        <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+        <TouchableOpacity onPress={cancelPicture} style={styles.closeButtonContainer}>
+          <AntDesign name="close" color="#ffff" size={30} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.nextButtonContainer}
+          onPress={cancelPicture}
+        >
+          <Text style={styles.nextButtonLabel}>Next</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -78,7 +70,7 @@ export default function App() {
         <FontAwesome
           onPress={takePicture}
           name="circle-thin"
-          size={50}
+          size={80}
           color="#fff"
         />
       </View>
@@ -88,13 +80,14 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 0,
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   flipCamera: {
     position: "absolute",
-    top: 20,
+    top: 40,
     right: 20,
   },
   iconContainer: {
@@ -105,4 +98,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  photoPreview: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  nextButtonContainer: {
+    backgroundColor: "#08aaff",
+    borderWidth: 2,
+    borderRadius: 50,
+    borderColor: "#08aaff",
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  nextButtonLabel: { color: "#fff", fontWeight: "bold" },
+  closeButtonContainer: {
+      display: "flex",
+      alignContent: "center",
+      justifyContent: "center",
+      alignItems: "center",
+      position: "absolute",
+      backgroundColor: "rgba(255,255,255, 0.25)",
+      top: 40,
+      left: 20,
+      width: 40,
+      height: 40,
+      borderRadius: 50,
+  }
 });

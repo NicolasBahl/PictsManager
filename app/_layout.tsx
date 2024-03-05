@@ -4,8 +4,14 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { createUploadLink } from "apollo-upload-client";
+import Constants from "expo-constants";
 
 import { useColorScheme } from '@/components/useColorScheme';
+import {ApolloClient, ApolloProvider, InMemoryCache, useQuery} from '@apollo/client';
+import * as SecureStore from "expo-secure-store";
+import {setContext} from "@apollo/client/link/context";
+import {useMeQuery} from "@/graphql/generated/graphql";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,13 +52,40 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { data } = useMeQuery({})
+
+  const {data} = useQuery()
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ApolloProvider client={client}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
+      </ApolloProvider>
     </ThemeProvider>
   );
 }
+
+const httpLink = createUploadLink({
+  uri: Constants?.expoConfig?.extra?.apiUrl,
+  headers: { "Apollo-Require-Preflight": "true" },
+});
+
+const authMiddleware = setContext(async (req, { headers }) => {
+  const token = await SecureStore?.getItemAsync?.("token");
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+});
+
+const cache = new InMemoryCache({});
+
+const client = new ApolloClient({
+  link: authMiddleware?.concat?.(httpLink),
+  cache,
+});

@@ -1,28 +1,50 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from "react-native";
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import { useEffect, useRef, useState } from "react";
 import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
+import { Link } from "expo-router";
 
 export default function App() {
   const [type, setType] = useState(CameraType.back);
-  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<
+    boolean | undefined
+  >(undefined);
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
 
   useEffect(() => {
     (async () => {
-      const cameraPermission = await Camera.getCameraPermissionsAsync();
-      setHasCameraPermission(cameraPermission.status === "granted");
+      await checkCameraPermission();
     })();
   }, []);
 
-  if (!hasCameraPermission) {
-    return (
-      <Text>
-        Permission for camera not granted. Please change your permission in your
-        mobile settings
-      </Text>
-    );
+  const checkCameraPermission = async () => {
+    const cameraPermission = await Camera.getCameraPermissionsAsync();
+    if (cameraPermission.granted) {
+      setHasCameraPermission(true);
+    } else {
+      setHasCameraPermission(false);
+    }
+  };
+
+  if (hasCameraPermission === false) {
+    Alert.alert("No access to camera", "Please allow access to the camera", [
+      {
+        text: "Open Settings",
+        onPress: () => {
+          Linking.openSettings();
+        },
+        style: "cancel",
+      },
+    ]);
   }
 
   const toggleCameraType = () => {
@@ -41,17 +63,19 @@ export default function App() {
 
   if (photo) {
     return (
-      <View  style={styles.container} >
+      <View style={styles.container}>
         <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
-        <TouchableOpacity onPress={cancelPicture} style={styles.closeButtonContainer}>
+        <TouchableOpacity
+          onPress={cancelPicture}
+          style={styles.closeButtonContainer}
+        >
           <AntDesign name="close" color="#ffff" size={30} />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.nextButtonContainer}
-          onPress={cancelPicture}
-        >
-          <Text style={styles.nextButtonLabel}>Next</Text>
+        <TouchableOpacity style={styles.nextButtonContainer}>
+          <Link href="/modal" asChild>
+            <Text style={styles.nextButtonLabel}>Next</Text>
+          </Link>
         </TouchableOpacity>
       </View>
     );
@@ -118,16 +142,16 @@ const styles = StyleSheet.create({
   },
   nextButtonLabel: { color: "#fff", fontWeight: "bold" },
   closeButtonContainer: {
-      display: "flex",
-      alignContent: "center",
-      justifyContent: "center",
-      alignItems: "center",
-      position: "absolute",
-      backgroundColor: "rgba(255,255,255, 0.25)",
-      top: 40,
-      left: 20,
-      width: 40,
-      height: 40,
-      borderRadius: 50,
-  }
+    display: "flex",
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    backgroundColor: "rgba(255,255,255, 0.25)",
+    top: 40,
+    left: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+  },
 });

@@ -20,7 +20,7 @@ interface AuthContextType {
 
   signIn(
     { token, user }: { token: string; user?: any },
-    provider?: string,
+    provider?: string
   ): Promise<void>;
 
   signOut(): Promise<void>;
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children?: ReactElement }) => {
 
   async function signIn(
     { token, user }: { token: string; user: any },
-    provider?: string,
+    provider?: string
   ) {
     await SecureStore.setItemAsync("token", token);
     const me = await refreshMe();
@@ -109,23 +109,23 @@ export const AuthProvider = ({ children }: { children?: ReactElement }) => {
       ></View>
     );
 
-  if (networkError) {
-    // center text to avoid layout shift
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: Colors?.light.background,
-          justifyContent: "center",
-        }}
-      >
-        <View style={{ alignItems: "center" }}>
-          <Text>Il semble y avoir un problème de connexion.</Text>
-          <Text>Veuillez réessayer.</Text>
-        </View>
-      </View>
-    );
-  }
+  // if (networkError) {
+  //   // center text to avoid layout shift
+  //   return (
+  //     <View
+  //       style={{
+  //         flex: 1,
+  //         backgroundColor: Colors?.light.background,
+  //         justifyContent: "center",
+  //       }}
+  //     >
+  //       <View style={{ alignItems: "center" }}>
+  //         <Text>Il semble y avoir un problème de connexion.</Text>
+  //         <Text>Veuillez réessayer.</Text>
+  //       </View>
+  //     </View>
+  //   );
+  // }
 
   return (
     <AuthContext.Provider

@@ -6,36 +6,51 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  Platform,
 } from "react-native";
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
-import { useEffect, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { router } from "expo-router";
+import { Button } from "@/components/ui/button";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   const [type, setType] = useState(CameraType.back);
-  const [hasCameraPermission, setHasCameraPermission] = useState<
-    boolean | undefined
-  >(undefined);
+
+  const [permission] = Camera.useCameraPermissions();
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
+  const [zoom, setZoom] = useState(0);
 
-  useEffect(() => {
-    (async () => {
-      await checkCameraPermission();
-    })();
-  }, []);
+  const onPinch = React.useCallback(
+    (event: any) => {
+      const velocity = event.velocity / 20;
 
-  const checkCameraPermission = async () => {
-    const cameraPermission = await Camera.getCameraPermissionsAsync();
-    if (cameraPermission.granted) {
-      setHasCameraPermission(true);
-    } else {
-      setHasCameraPermission(false);
-    }
-  };
+      let newZoom =
+          velocity > 0
+              ? zoom + event.scale * velocity * (Platform.OS === 'ios' ? 0.01 : 25) // prettier-ignore
+              : zoom - event.scale * Math.abs(velocity) * (Platform.OS === 'ios' ? 0.02 : 50); // prettier-ignore
 
-  if (hasCameraPermission === false) {
+      if (newZoom < 0) newZoom = 0;
+      else if (newZoom > 0.5) newZoom = 0.5;
+
+      setZoom(newZoom);
+    },
+    [zoom, setZoom]
+  );
+
+  const pinchGesture = useMemo(
+    () => Gesture.Pinch().onUpdate(onPinch),
+    [onPinch]
+  );
+
+  if (!permission) {
+    return null;
+  }
+
+  if (!permission?.granted) {
     Alert.alert("No access to camera", "Please allow access to the camera", [
       {
         text: "Open Settings",
@@ -45,6 +60,7 @@ export default function App() {
         style: "cancel",
       },
     ]);
+    return null;
   }
 
   const toggleCameraType = () => {
@@ -71,34 +87,123 @@ export default function App() {
         >
           <AntDesign name="close" color="#ffff" size={30} />
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.nextButtonContainer}>
-          <Link href="/modal" asChild>
-            <Text style={styles.nextButtonLabel}>Next</Text>
-          </Link>
-        </TouchableOpacity>
+        <Button
+          style={styles.nextButtonContainer}
+          onPress={() =>
+            router.push({
+              pathname: "/(app)/modal",
+              params: { uri: photo.uri },
+            })
+          }
+        >
+          <Text style={styles.nextButtonLabel}>Next</Text>
+        </Button>
       </View>
     );
   }
 
-  return (
-    <Camera ref={cameraRef} type={type} style={styles.container}>
-      <MaterialIcons
-        onPress={toggleCameraType}
-        style={styles.flipCamera}
-        name="flip-camera-ios"
-        size={30}
-        color="#ffff"
-      />
-      <View style={styles.iconContainer}>
-        <FontAwesome
-          onPress={takePicture}
-          name="circle-thin"
-          size={80}
-          color="#fff"
-        />
+  const Ration = () => {
+    const [showMore, setShowMore] = useState(false);
+    const options = ["16:9", "1:1", "4:3"];
+    const [defaultRatio, setDefaultRatio] = useState("16:9");
+    const height = showMore ? 150 : 0;
+
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 90,
+          right: 18,
+          flex: 1,
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexDirection: "column",
+          height,
+          borderRadius: 40,
+          width: 35,
+          backgroundColor: "rgba(255,255,255,0.5)",
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            justifyContent: "center",
+            alignContent: "center",
+            backgroundColor: "rgba(255,255,255,0.9)",
+            borderRadius: 50,
+            width: "100%",
+            height: 35,
+            padding: 5,
+            marginBottom: 5,
+          }}
+          onPress={() => setShowMore(!showMore)}
+        >
+          <Text style={{ textAlign: "center", color: "black", fontSize: 10 }}>
+            {defaultRatio}
+          </Text>
+        </TouchableOpacity>
+        {showMore &&
+          options
+            .filter((option, index) => option !== defaultRatio)
+            .map((otion, idx) => {
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={{
+                    justifyContent: "center",
+                    alignContent: "center",
+                    backgroundColor: "rgba(255,255,255,0.9)",
+                    borderRadius: 50,
+                    width: "100%",
+                    height: 35,
+                    padding: 5,
+                    marginBottom: 5,
+                  }}
+                  onPress={() => {
+                    setDefaultRatio(otion);
+                    setShowMore(false);
+                  }}
+                >
+                  <Text
+                    style={{ textAlign: "center", color: "black", fontSize: 10 }}
+                  >
+                    {otion}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
       </View>
-    </Camera>
+    );
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureDetector gesture={pinchGesture}>
+        <Camera
+          zoom={zoom}
+          ratio={"16:9"}
+          ref={cameraRef}
+          type={type}
+          style={styles.container}
+        >
+          <MaterialIcons
+            onPress={toggleCameraType}
+            style={styles.flipCamera}
+            name="flip-camera-ios"
+            size={30}
+            color="#ffff"
+          />
+          <Ration />
+          <View style={styles.iconContainer}>
+            <FontAwesome
+              onPress={takePicture}
+              name="circle-thin"
+              size={80}
+              color="#fff"
+            />
+          </View>
+        </Camera>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 }
 

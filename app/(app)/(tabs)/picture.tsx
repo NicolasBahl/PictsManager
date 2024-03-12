@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import { saveToLibraryAsync } from 'expo-media-library';
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import React, { useMemo, useRef, useState } from "react";
 import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
@@ -69,9 +70,18 @@ export default function App() {
   };
 
   const takePicture = async () => {
-    let options = { quality: 0.8, base64: false, exif: true };
+    let options = { quality: 1, base64: false, exif: true, };
     let newPhoto = await cameraRef.current?.takePictureAsync(options);
-    if (newPhoto) setPhoto(newPhoto);
+    if (newPhoto) {
+      setPhoto(newPhoto);
+
+      if (newPhoto) {
+        setPhoto(newPhoto);
+        if (Platform.OS === 'ios') {
+          await saveToLibraryAsync(newPhoto.uri);
+        }
+      }
+    }
   };
 
   const cancelPicture = () => {

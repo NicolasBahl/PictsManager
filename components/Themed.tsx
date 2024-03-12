@@ -13,8 +13,14 @@ type ThemeProps = {
   darkColor?: string;
 };
 
+export enum BackgroundColor {
+  Background = 'background',
+  LightBackground = 'lightBackground',
+  LighterBackground = 'lighterBackground',
+}
+
 export type TextProps = ThemeProps & DefaultText['props'];
-export type ViewProps = ThemeProps & DefaultView['props'];
+export type ViewProps = ThemeProps & DefaultView['props'] & { backgroundColor?: BackgroundColor };
 export type ScrollViewProps = ThemeProps & DefaultScrollView['props'];
 
 export function useThemeColor(
@@ -39,10 +45,10 @@ export function Text(props: TextProps) {
 }
 
 export function View(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  const { style, lightColor, darkColor, backgroundColor = BackgroundColor.Background, ...otherProps } = props;
+  const bgColor = useThemeColor({ light: lightColor, dark: darkColor }, backgroundColor);
 
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+  return <DefaultView style={[{ backgroundColor: bgColor }, style]} {...otherProps} />;
 }
 
 export function ScrollView(props: ScrollViewProps) {

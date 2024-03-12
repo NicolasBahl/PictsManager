@@ -6,15 +6,20 @@ import {
   NativeSyntheticEvent,
   TextInputChangeEventData,
 } from "react-native";
-import { Text, View, ScrollView } from "@/components/Themed";
+import { Text, View, ScrollView, BackgroundColor } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "../../components/ui/button";
 import { useState } from "react";
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 export default function ModalScreen() {
   const { uri } = useLocalSearchParams();
 
   const [inputValue, setInputValue] = useState("");
   const [capturedText, setCapturedText] = useState<string[]>([]);
+
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   const removeText = (index: number) => {
     const newTextArray = capturedText.filter((_, i) => i !== index);
@@ -41,13 +46,20 @@ export default function ModalScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={{ uri: uri.toString() }} style={styles.image} />
       <Text style={styles.title}>Tags</Text>
-      <View style={styles.tagsInputContainer}>
-        <View style={styles.scrollView}>
+      <View style={styles.tagsInputContainer} backgroundColor={BackgroundColor.LightBackground}>
+        <View style={styles.scrollView} backgroundColor={BackgroundColor.LightBackground}>
           {capturedText.map((text, index) => (
             <TouchableOpacity
               onPress={() => removeText(index)}
               key={index}
-              style={styles.tag}
+              style={[
+                styles.tag,
+                {
+                  backgroundColor: isDarkMode
+                    ? Colors.dark[BackgroundColor.LighterBackground]
+                    : Colors.light[BackgroundColor.LighterBackground],
+                },
+              ]}
             >
               <Text style={styles.tagText}>{text}</Text>
             </TouchableOpacity>
@@ -117,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 30,
     paddingVertical: 10,
-    backgroundColor: "#7c7672",
+    backgroundColor: "#ff3b30",
     borderRadius: 10,
   },
   saveButton: {
@@ -136,7 +148,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    backgroundColor: "#7c7672",
     height: 100,
     width: 350,
     borderRadius: 10,
@@ -146,11 +157,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flexWrap: "wrap",
     borderRadius: 10,
-    backgroundColor: "#7c7672",
     flexDirection: "row",
   },
   tag: {
-    backgroundColor: "#C6C6C6",
     borderRadius: 2,
     justifyContent: "center",
     alignContent: "center",
@@ -158,7 +167,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   tagText: {
-    color: "#fff",
     fontSize: 10,
     paddingHorizontal: 5,
     fontWeight: "300",

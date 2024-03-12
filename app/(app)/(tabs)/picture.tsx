@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { saveToLibraryAsync } from 'expo-media-library';
+// import { saveToLibraryAsync } from 'expo-media-library';
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import React, { useMemo, useRef, useState } from "react";
 import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
@@ -75,12 +75,12 @@ export default function App() {
     if (newPhoto) {
       setPhoto(newPhoto);
 
-      if (newPhoto) {
-        setPhoto(newPhoto);
-        if (Platform.OS === 'ios') {
-          await saveToLibraryAsync(newPhoto.uri);
-        }
-      }
+      // if (newPhoto) {
+      //   setPhoto(newPhoto);
+      //   if (Platform.OS === 'ios') {
+      //     await saveToLibraryAsync(newPhoto.uri);
+      //   }
+      // }
     }
   };
 

@@ -5,15 +5,18 @@ import {
   TextInput,
   NativeSyntheticEvent,
   TextInputChangeEventData,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { Text, View, ScrollView, BackgroundColor } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "../../components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 export default function ModalScreen() {
   const { uri } = useLocalSearchParams();
+  const [imageRatio, setImageRatio] = useState(1);
 
   const [inputValue, setInputValue] = useState("");
   const [capturedText, setCapturedText] = useState<string[]>([]);
@@ -42,58 +45,77 @@ export default function ModalScreen() {
     router.back();
   };
 
+  // Get the image ratio to set the aspect ratio of the image
+  useEffect(() => {
+    Image.getSize(uri.toString(), (width, height) => {
+      setImageRatio(width / height);
+    });
+  }, [uri]);
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Image source={{ uri: uri.toString() }} style={styles.image} />
-      <Text style={styles.title}>Tags</Text>
-      <View style={styles.tagsInputContainer} backgroundColor={BackgroundColor.LightBackground}>
-        <View style={styles.scrollView} backgroundColor={BackgroundColor.LightBackground}>
-          {capturedText.map((text, index) => (
-            <TouchableOpacity
-              onPress={() => removeText(index)}
-              key={index}
-              style={[
-                styles.tag,
-                {
-                  backgroundColor: isDarkMode
-                    ? Colors.dark[BackgroundColor.LighterBackground]
-                    : Colors.light[BackgroundColor.LighterBackground],
-                },
-              ]}
-            >
-              <Text style={styles.tagText}>{text}</Text>
-            </TouchableOpacity>
-          ))}
-          <TextInput
-            style={styles.textInput}
-            onChange={handleInputChange}
-            value={inputValue}
-          />
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Image source={{ uri: uri.toString() }} style={[styles.image, { aspectRatio: imageRatio }]} />
+        <Text style={styles.title}>Tags</Text>
+        <View style={styles.tagsInputContainer} backgroundColor={BackgroundColor.LightBackground}>
+          <View style={styles.scrollView} backgroundColor={BackgroundColor.LightBackground}>
+            {capturedText.map((text, index) => (
+              <TouchableOpacity
+                onPress={() => removeText(index)}
+                key={index}
+                style={[
+                  styles.tag,
+                  {
+                    backgroundColor: isDarkMode
+                      ? Colors.dark[BackgroundColor.LighterBackground]
+                      : Colors.light[BackgroundColor.LighterBackground],
+                  },
+                ]}
+              >
+                <Text style={styles.tagText}>{text}</Text>
+              </TouchableOpacity>
+            ))}
+            <TextInput
+              style={styles.textInput}
+              onChange={handleInputChange}
+              value={inputValue}
+              autoComplete="off"
+              autoCorrect={false}
+            />
+          </View>
         </View>
-      </View>
-      <Text style={styles.title}>Album</Text>
-      <View style={styles.albumContainer}>
-        <Image
-          source={require("@/assets/images/placeholder.jpg")}
-          style={{
-            width: 85,
-            height: 85,
-            borderRadius: 8,
-            marginHorizontal: 10,
-            resizeMode: "cover",
-          }}
-        />
-        <Text style={{ fontSize: 20, fontWeight: "bold" }}>Paysage</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.buttonText}>Cancel</Text>
-        </Button>
-        <Button style={styles.saveButton} onPress={onCancel}>
-          <Text style={styles.buttonText}>Save</Text>
-        </Button>
-      </View>
-    </ScrollView>
+        <Text style={styles.title}>Album</Text>
+        <View style={styles.albumContainer} backgroundColor={BackgroundColor.LightBackground}>
+          <Image
+            source={require("@/assets/images/placeholder.jpg")}
+            style={styles.albumIcon}
+          />
+          <Text style={styles.albumName}>Paysage</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button style={[
+            styles.button,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.dark.lightBackground
+                : Colors.light.lightBackground,
+            }
+          ]} onPress={onCancel}>
+            <Text style={styles.buttonText}>Cancel</Text>
+          </Button>
+          <Button style={[
+            styles.button,
+            {
+              backgroundColor: isDarkMode
+                ? Colors.dark.primary
+                : Colors.light.primary,
+            }
+          ]} onPress={onCancel}>
+            <Text style={styles.buttonText}>Save</Text>
+          </Button>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -103,41 +125,28 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   image: {
-    marginTop: 60,
-    width: 268,
-    height: 390,
-    borderRadius: 10,
-    resizeMode: "cover",
+    marginTop: 20,
+    width: "80%",
+    borderRadius: 8,
+    resizeMode: "contain",
   },
   title: {
     marginTop: 25,
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 20,
-    alignSelf: "flex-start",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
+    fontSize: 24,
+    fontWeight: "700",
     width: "80%",
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 25,
+    width: "80%",
     flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
   },
-  cancelButton: {
-    justifyContent: "center",
-    paddingHorizontal: 30,
-    paddingVertical: 10,
-    backgroundColor: "#ff3b30",
-    borderRadius: 10,
-  },
-  saveButton: {
-    marginLeft: 20,
-    justifyContent: "center",
-    paddingHorizontal: 30,
-    backgroundColor: "#08aaff",
-    borderRadius: 10,
+  button: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 8,
   },
   buttonText: {
     fontWeight: "bold",
@@ -149,41 +158,51 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
     height: 100,
-    width: 350,
-    borderRadius: 10,
-    marginTop: 20,
+    width: "80%",
+    borderRadius: 8,
+    marginTop: 4,
     marginHorizontal: 20,
+    padding: 2,
   },
   scrollView: {
     flexWrap: "wrap",
-    borderRadius: 10,
+    borderRadius: 8,
     flexDirection: "row",
   },
   tag: {
-    borderRadius: 2,
+    borderRadius: 4,
     justifyContent: "center",
     alignContent: "center",
-    marginVertical: 8,
+    marginVertical: 2,
     marginHorizontal: 2,
+    padding: 4,
   },
   tagText: {
-    fontSize: 10,
-    paddingHorizontal: 5,
-    fontWeight: "300",
+    fontSize: 14,
+    fontWeight: "500",
   },
   textInput: {
     flex: 1,
-    padding: 10,
   },
   albumContainer: {
     alignContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    backgroundColor: "#7c7672",
-    height: 100,
-    width: 350,
-    borderRadius: 10,
-    marginTop: 20,
-    marginHorizontal: 20,
+    height: 80,
+    width: "80%",
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  albumIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 4,
+    margin: 4,
+    resizeMode: "cover",
+  },
+  albumName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 8
   },
 });

@@ -9,7 +9,7 @@ interface RatioProps {
 const RatioChanger: React.FC<RatioProps> = ({ ratio, setState }) => {
   const [showMore, setShowMore] = React.useState(false);
   const options = ["16:9", "1:1", "4:3"];
-  const height = showMore ? 150 : 0;
+  const height = showMore ? 170 : 0;
 
   return (
     <View style={[styles.container, { height }]}>
@@ -49,14 +49,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     flexDirection: "column",
-    borderRadius: 40,
+    borderRadius: 45,
     width: 45,
     backgroundColor: "rgba(255,255,255, 0.25)",
   },
   ratioChanger: {
     justifyContent: "center",
     alignContent: "center",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "rgba(255,255,255,0.25)",
     borderRadius: 50,
     width: "100%",
     height: 45,
@@ -66,16 +66,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
     backgroundColor: "rgba(255,255,255,0.25)",
-    borderRadius: 50,
+    borderRadius: 45,
     width: "100%",
-    height: 35,
+    height: 45,
     padding: 5,
     marginBottom: 5,
   },
   ratio: {
     textAlign: "center",
     color: "#fff",
-    fontSize: 10,
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });
 

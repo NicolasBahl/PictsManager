@@ -1,30 +1,59 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 
-import React, { useMemo, useRef, useState } from "react";
-import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
+import React, { useRef, useState } from "react";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Button } from "@/components/ui/button";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import RatioChanger from "@/components/ui/ratioChanger";
-import { Camera, useCameraDevice } from "react-native-vision-camera";
-import { CameraCapturedPicture } from "expo-camera";
-import { Fontisto } from "@expo/vector-icons";
+import { Camera, CameraProps, useCameraDevice } from "react-native-vision-camera";
+import Reanimated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedProps,
+  useSharedValue,
+} from "react-native-reanimated";
 import Icon from "@/components/ui/icon";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 export default function App() {
-  // const [type, setType] = useState(CameraType.back);
-
-  // const [permission] = Camera.useCameraPermissions();
-  // const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0);
   const [ratio, setRatio] = useState("16:9");
-  // const [margin, setMargin] = useState({ horizontal: 0, vertical: 0 });
   const [position, setPosition] = React.useState<"front" | "back">("back");
   const [flash, setFlash] = React.useState<"on" | "off">("off");
   const device = useCameraDevice(position);
   const camera = useRef<Camera>(null);
+
+  const zoom = useSharedValue(device?.neutralZoom);
+
+  const zoomOffset = useSharedValue(0);
+  const gesture = Gesture.Pinch()
+    .onBegin(() => {
+      if (zoomOffset !== undefined) {
+        zoomOffset.value = zoom.value;
+      }
+    })
+    .onUpdate((event) => {
+      const z = zoomOffset.value * event.scale;
+      zoom.value = interpolate(
+        z,
+        [1, 10],
+        [device?.minZoom, device?.maxZoom],
+        Extrapolation.CLAMP
+      );
+    });
+
+  const animatedProps = useAnimatedProps<CameraProps>(
+    () => ({ zoom: zoom.value }),
+    [zoom]
+  );
 
   // const onPinch = React.useCallback(
   //   (event: any) => {
@@ -59,6 +88,7 @@ export default function App() {
     if (camera.current === null) return;
     else {
       const photo = await camera.current.takePhoto({
+        
         flash: flash,
       });
       setPhoto(photo.path);
@@ -98,14 +128,17 @@ export default function App() {
   }
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Camera
-        photo={true}
-        ref={camera}
-        zoom={zoom}
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-      />
+      <GestureDetector gesture={gesture}>
+        <ReanimatedCamera
+          animatedProps={animatedProps}
+          photo={true}
+          ref={camera}
+          zoom={zoom}
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+        />
+      </GestureDetector>
       <Icon
         style={styles.flipCamera}
         name="flip-camera-ios"

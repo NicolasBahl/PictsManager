@@ -6,7 +6,7 @@ import {
   NativeSyntheticEvent,
   TextInputChangeEventData,
 } from "react-native";
-import { Text, View } from "@/components/Themed";
+import { Text, View, ScrollView } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "../../components/ui/button";
 import { useState } from "react";
@@ -38,7 +38,7 @@ export default function ModalScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Image source={{ uri: uri.toString() }} style={styles.image} />
       <Text style={styles.title}>Tags</Text>
       <View style={styles.tagsInputContainer}>
@@ -81,14 +81,14 @@ export default function ModalScreen() {
           <Text style={styles.buttonText}>Save</Text>
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
+    paddingVertical: 40,
   },
   image: {
     marginTop: 60,

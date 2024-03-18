@@ -93,24 +93,10 @@ export default function ModalScreen() {
           <Text style={styles.albumName}>Paysage</Text>
         </View>
         <View style={styles.buttonContainer}>
-          <Button style={[
-            styles.button,
-            {
-              backgroundColor: isDarkMode
-                ? Colors.dark.lightBackground
-                : Colors.light.lightBackground,
-            }
-          ]} onPress={onCancel}>
+          <Button style={styles.button} onPress={onCancel} variant="secondary">
             <Text style={styles.buttonText}>Cancel</Text>
           </Button>
-          <Button style={[
-            styles.button,
-            {
-              backgroundColor: isDarkMode
-                ? Colors.dark.primary
-                : Colors.light.primary,
-            }
-          ]} onPress={onCancel}>
+          <Button style={styles.button} onPress={onCancel} variant="default">
             <Text style={styles.buttonText}>Save</Text>
           </Button>
         </View>

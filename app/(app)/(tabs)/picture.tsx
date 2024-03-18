@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
+// import { saveToLibraryAsync } from 'expo-media-library';
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import React, { useMemo, useRef, useState } from "react";
 import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
@@ -19,7 +20,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function App() {
   const [type, setType] = useState(CameraType.back);
 
-  const [permission] = Camera.useCameraPermissions();
   const cameraRef = useRef<Camera>(null);
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [zoom, setZoom] = useState(0);
@@ -29,9 +29,9 @@ export default function App() {
       const velocity = event.velocity / 20;
 
       let newZoom =
-          velocity > 0
-              ? zoom + event.scale * velocity * (Platform.OS === 'ios' ? 0.01 : 25) // prettier-ignore
-              : zoom - event.scale * Math.abs(velocity) * (Platform.OS === 'ios' ? 0.02 : 50); // prettier-ignore
+        velocity > 0
+          ? zoom + event.scale * velocity * (Platform.OS === 'ios' ? 0.01 : 25) // prettier-ignore
+          : zoom - event.scale * Math.abs(velocity) * (Platform.OS === 'ios' ? 0.02 : 50); // prettier-ignore
 
       if (newZoom < 0) newZoom = 0;
       else if (newZoom > 0.5) newZoom = 0.5;
@@ -46,31 +46,42 @@ export default function App() {
     [onPinch]
   );
 
-  if (!permission) {
-    return null;
-  }
-
-  if (!permission?.granted) {
-    Alert.alert("No access to camera", "Please allow access to the camera", [
-      {
-        text: "Open Settings",
-        onPress: () => {
-          Linking.openSettings();
+  const getCameraPermission = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("No access to camera", "Please allow access to the camera", [
+        {
+          text: "Open Settings",
+          onPress: () => {
+            Linking.openSettings();
+          },
+          style: "cancel",
         },
-        style: "cancel",
-      },
-    ]);
-    return null;
-  }
+      ]);
+    }
+  };
+
+  React.useEffect(() => {
+    getCameraPermission();
+  }, []);
 
   const toggleCameraType = () => {
     setType(type === CameraType.back ? CameraType.front : CameraType.back);
   };
 
   const takePicture = async () => {
-    let options = { quality: 0.8, base64: false, exif: true };
+    let options = { quality: 1, base64: false, exif: true, };
     let newPhoto = await cameraRef.current?.takePictureAsync(options);
-    if (newPhoto) setPhoto(newPhoto);
+    if (newPhoto) {
+      setPhoto(newPhoto);
+
+      // if (newPhoto) {
+      //   setPhoto(newPhoto);
+      //   if (Platform.OS === 'ios') {
+      //     await saveToLibraryAsync(newPhoto.uri);
+      //   }
+      // }
+    }
   };
 
   const cancelPicture = () => {

@@ -6,12 +6,14 @@ import {
   NativeSyntheticEvent,
   TextInputChangeEventData,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Modal,
+  Animated,
 } from "react-native";
 import { Text, View, ScrollView, BackgroundColor } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "../../components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 export default function ModalScreen() {
@@ -20,6 +22,13 @@ export default function ModalScreen() {
 
   const [inputValue, setInputValue] = useState("");
   const [capturedText, setCapturedText] = useState<string[]>([]);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedAlbum, setSelectedAlbum] = useState('Landscapes');
+  const albums = ['Landscape', 'Nature', 'City', 'People', 'Animals', 'Food', 'Art', 'Other', 'Car', 'Travel', 'Architecture', 'Fashion', 'Sport', 'Technology', 'Business', 'Education', 'Health', 'Science', 'Music', 'Film', 'Books', 'Games', 'Hobbies', 'Family', 'Friends', 'Love', 'Selfie'];
+
+  const albumRef = useRef<TouchableOpacity>(null);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -85,13 +94,58 @@ export default function ModalScreen() {
           </View>
         </View>
         <Text style={styles.title}>Album</Text>
-        <View style={styles.albumContainer} backgroundColor={BackgroundColor.LightBackground}>
+        <TouchableOpacity
+          ref={albumRef}
+          onPress={() => {
+            if (albumRef.current) {
+              albumRef.current.measure((x, y, width, height, pageX, pageY) => {
+                setModalPosition({
+                  x: pageX,
+                  y: (albums.length > 3) ? pageY - (270 - height) : pageY - (height * (albums.length - 1))
+                });
+                setIsMenuOpen(true);
+              });
+            }
+          }}
+          style={[styles.albumContainer, styles.oneAlbum]}
+        >
           <Image
             source={require("@/assets/images/placeholder.jpg")}
             style={styles.albumIcon}
           />
-          <Text style={styles.albumName}>Paysage</Text>
-        </View>
+          <Text style={styles.albumName}>{selectedAlbum}</Text>
+        </TouchableOpacity>
+        <Modal
+          visible={isMenuOpen}
+          transparent
+          onRequestClose={() => setIsMenuOpen(false)}
+        >
+          <Animated.View style={[styles.modalContainer, { top: modalPosition.y, left: modalPosition.x }]}>
+            <ScrollView>
+              {albums.map((album, index) => (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  key={album}
+                  onPress={() => {
+                    setSelectedAlbum(album);
+                    setIsMenuOpen(false);
+                  }}
+                  style={[
+                    styles.albumContainer,
+                    index === 0 ? styles.firstAlbum : {},
+                    index === albums.length - 1 ? styles.lastAlbum : {},
+                  ]}
+                >
+                  <Image
+                    source={require("@/assets/images/placeholder.jpg")}
+                    style={styles.albumIcon}
+                  />
+                  <Text style={styles.albumName}>{album}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </Animated.View>
+        </Modal>
         <View style={styles.buttonContainer}>
           <Button style={styles.button} onPress={onCancel} variant="secondary">
             <Text style={styles.buttonText}>Cancel</Text>
@@ -118,6 +172,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 25,
+    marginBottom: 4,
     fontSize: 24,
     fontWeight: "700",
     width: "80%",
@@ -129,6 +184,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
+  modalContainer: {
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+    maxHeight: 270,
+  },
   button: {
     flex: 1,
     padding: 8,
@@ -136,7 +198,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: "bold",
-    color: "#fff",
     textAlign: "center",
   },
   tagsInputContainer: {
@@ -146,7 +207,6 @@ const styles = StyleSheet.create({
     height: 100,
     width: "80%",
     borderRadius: 8,
-    marginTop: 4,
     marginHorizontal: 20,
     padding: 2,
   },
@@ -176,8 +236,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 80,
     width: "80%",
+    backgroundColor: "#d9d9d9",
+  },
+  firstAlbum: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  lastAlbum: {
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  oneAlbum: {
     borderRadius: 8,
-    marginTop: 4,
   },
   albumIcon: {
     width: 72,

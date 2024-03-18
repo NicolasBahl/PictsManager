@@ -1,14 +1,21 @@
-import { StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import { StyleSheet, View, TextInput } from 'react-native';
+import { Text } from '@/components/Themed';
+import SearchBar from '@/components/SearchBar';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+export default function Albums() {
+  const searchBarRef = useRef(null);
 
-export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      <View style={styles.header}>
+        <Text style={styles.title}>Albums</Text>
+      </View>
+      <SearchBar
+        ref={searchBarRef}
+        placeholder="Search albums"
+        onChangeText={(text) => console.log(text)}
+      />
     </View>
   );
 }
@@ -16,16 +23,14 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    marginTop: 50,
+    marginBottom: 20,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
+  }
 });

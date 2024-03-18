@@ -1,7 +1,21 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Alert,
+  Dimensions,
+} from "react-native";
 
 import React, { useRef, useState } from "react";
-import { AntDesign, FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  FontAwesome,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { Button } from "@/components/ui/button";
 import RatioChanger from "@/components/ui/ratioChanger";
@@ -10,6 +24,7 @@ import {
   CameraProps,
   useCameraDevice,
   useCameraFormat,
+  useCameraPermission,
 } from "react-native-vision-camera";
 import Reanimated, {
   Extrapolation,
@@ -23,7 +38,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import { Feather } from '@expo/vector-icons';
+import { Feather } from "@expo/vector-icons";
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -35,6 +50,7 @@ export default function Picture() {
     width: number;
     height: number;
   } | null>(null);
+
   const [ratio, setRatio] = useState("16:9");
   const [position, setPosition] = React.useState<"front" | "back">("back");
   const [flash, setFlash] = React.useState<"on" | "off">("off");
@@ -42,6 +58,8 @@ export default function Picture() {
   const device = useCameraDevice(position);
   const [tarBar, setTarBar] = useState("off");
   const camera = useRef<Camera>(null);
+
+  const { hasPermission, requestPermission } = useCameraPermission();
 
   const zoom = useSharedValue(device?.neutralZoom);
 
@@ -82,7 +100,7 @@ export default function Picture() {
         flash: flash,
       });
       const { path, width, height } = photo;
-
+      console.log(photo);
       setPhoto({ uri: path, width: width, height: height });
     }
   };
@@ -91,38 +109,62 @@ export default function Picture() {
     setPhoto(null);
   };
 
+  React.useEffect(() => {
+    const askPermission = async () => {
+      if (hasPermission === false) {
+        let response = await requestPermission();
+        if (response === false) {
+          Alert.alert("Permission denied", "You have to open your settings", [
+            { text: "OK", onPress: () => Linking.openSettings() },
+          ]);
+        } else {
+          console.log("Permission granted");
+        }
+      } else {
+        console.log("Permission granted");
+      }
+    };
+    askPermission();
+  }, [hasPermission]);
+
   const navigation = useNavigation();
 
   React.useEffect(() => {
-    navigation?.setOptions({ tabBarStyle: { display: tarBar === "off" ? 'none' : 'display' } });
+    navigation?.setOptions({
+      tabBarStyle: { display: tarBar === "off" ? "none" : "display" },
+    });
   }, [tarBar]);
 
+  const screen = Dimensions.get("screen");
   const format = useCameraFormat(
     device,
     hdr === "on"
       ? [
           { photoResolution: { width: 2000, height: 2000 } },
-          { pixelFormat: "yuv" },
         ]
-      : [{ photoResolution: { width: 0, height: 0 } }]
+      : [
+          { photoAspectRatio: screen.height / screen.width },
+        ]
   );
 
-  const getMargins = (ratio: string) => {
+  const changePhotoRation = (ratio: string) => {
     if (ratio === "16:9") {
-      return { marginHorizontal: 0, marginVertical: 0 };
-    } else if (ratio === "4:3") {
-      return { marginHorizontal: 10, marginVertical: 20 };
-    } else if (ratio === "1:1") {
-      return { marginHorizontal: 40, marginVertical: 40 };
+      return { marginVertical: 0 };
     }
-    return { marginHorizontal: 0, marginVertical: 0 };
+    if (ratio === "4:3") {
+      return { marginVertical: 100 };
+    }
+    if (ratio === "1:1") {
+      return { marginVertical: 200 };
+    }
+    return { marginVertical: 0 };
   };
 
-  const { marginHorizontal, marginVertical } = getMargins(ratio);
+  const { marginVertical } = changePhotoRation(ratio);
 
   if (photo) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { marginVertical }]}>
         <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
         <TouchableOpacity
           onPress={cancelPicture}
@@ -153,8 +195,8 @@ export default function Picture() {
       style={[
         styles.container,
         {
-          marginHorizontal,
-          marginVertical,
+          flex: 1,
+          marginVertical: marginVertical,
         },
       ]}
     >
@@ -170,45 +212,51 @@ export default function Picture() {
           isActive={true}
         />
       </GestureDetector>
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "space-around",
-          alignItems: "flex-end",
-          marginRight: 20,
-          marginTop: 40,
-        }}
-      >
+      <View style={styles.iconsContainer}>
         <Icon
           style={styles.icons}
           onPress={() => setPosition(position === "back" ? "front" : "back")}
         >
-           <MaterialIcons name={"flip-camera-ios"} size={30} color={"#fff"} />
+          <MaterialIcons name={"flip-camera-ios"} size={30} color={"#fff"} />
         </Icon>
         <Icon
           style={styles.icons}
           onPress={() => setFlash(flash === "off" ? "on" : "off")}
         >
-          <Ionicons name={flash === "on" ? 'flash' : "flash-off"} size={30} color={"#fff"}/>
+          <Ionicons
+            name={flash === "on" ? "flash" : "flash-off"}
+            size={30}
+            color={"#fff"}
+          />
         </Icon>
         <Icon
           style={styles.icons}
-         
           onPress={() => setHdr(hdr === "off" ? "on" : "off")}
         >
-          <MaterialIcons name={hdr === "on" ? "hdr-on" : "hdr-off"} size={30} color={"#fff"} />
+          <MaterialIcons
+            name={hdr === "on" ? "hdr-on" : "hdr-off"}
+            size={30}
+            color={"#fff"}
+          />
         </Icon>
 
         <Icon
           style={styles.icons}
           onPress={() => setTarBar(tarBar === "off" ? "on" : "off")}
         >
-          <Feather name={tarBar === "off" ? "eye-off" : "eye"} size={30} color="#fff" />
+          <Feather
+            name={tarBar === "off" ? "eye-off" : "eye"}
+            size={30}
+            color="#fff"
+          />
         </Icon>
         <RatioChanger style={styles.icons} ratio={ratio} setState={setRatio} />
       </View>
-      
-      <TouchableOpacity onPress={takePicture} style={styles.iconContainer}>
+
+      <TouchableOpacity
+        onPress={takePicture}
+        style={[styles.takePictureIcon, { bottom: tarBar === "off" ? 20 : 20 }]}
+      >
         <FontAwesome name="circle-thin" size={80} color="#fff" />
       </TouchableOpacity>
     </GestureHandlerRootView>
@@ -218,18 +266,13 @@ export default function Picture() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-between',
   },
-  iconContainer: {
-    position: "absolute",
-    bottom: 25,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
+  takePictureIcon: {
+    alignSelf: "center", 
   },
   photoPreview: {
     flex: 1,
-    width: "100%",
     height: "100%",
   },
   nextButtonContainer: {
@@ -261,5 +304,12 @@ const styles = StyleSheet.create({
   },
   icons: {
     marginVertical: 10,
+  },
+  iconsContainer: {
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+    marginRight: 20,
+    marginTop: 40,
   },
 });

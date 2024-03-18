@@ -1,30 +1,27 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import {  ReactNode } from "react";
 import {
   StyleProp,
-  View,
   StyleSheet,
   ViewStyle,
   TouchableOpacity,
 } from "react-native";
 
 interface IconProps {
-  name: any;
-  color?: string;
-  size?: number;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  children?: ReactNode
 }
 
 const Icon: React.FC<IconProps> = ({
-  name,
-  color = "#fff",
-  size = 30,
   onPress,
   style,
+  children
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.container, style]}>
-      <MaterialIcons name={name} size={size} color={color} />
+      {
+        children && children
+      }
     </TouchableOpacity>
   );
 };

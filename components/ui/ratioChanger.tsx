@@ -1,18 +1,26 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+} from "react-native";
 
 interface RatioProps {
   ratio: string;
   setState: React.Dispatch<React.SetStateAction<string>>;
+  style?: StyleProp<ViewStyle>;
 }
 
-const RatioChanger: React.FC<RatioProps> = ({ ratio, setState }) => {
+const RatioChanger: React.FC<RatioProps> = ({ ratio, setState, style }) => {
   const [showMore, setShowMore] = React.useState(false);
   const options = ["16:9", "1:1", "4:3"];
   const height = showMore ? 170 : 0;
 
   return (
-    <View style={[styles.container, { height }]}>
+    <View style={[styles.container, { height }, style]}>
       <TouchableOpacity
         style={styles.ratioContainer}
         onPress={() => setShowMore(!showMore)}
@@ -22,17 +30,17 @@ const RatioChanger: React.FC<RatioProps> = ({ ratio, setState }) => {
       {showMore &&
         options
           .filter((option, index) => option !== ratio)
-          .map((otion, idx) => {
+          .map((option, idx) => {
             return (
               <TouchableOpacity
                 key={idx}
                 style={styles.ratioChanger}
                 onPress={() => {
-                  setState(otion);
+                  setState(option);
                   setShowMore(false);
                 }}
               >
-                <Text style={styles.ratio}>{otion}</Text>
+                <Text style={styles.ratio}>{option}</Text>
               </TouchableOpacity>
             );
           })}
@@ -42,10 +50,6 @@ const RatioChanger: React.FC<RatioProps> = ({ ratio, setState }) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    top: 180,
-    right: 18,
-    flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
     flexDirection: "column",

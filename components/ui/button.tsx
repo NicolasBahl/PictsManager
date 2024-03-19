@@ -6,6 +6,9 @@ import {
   StyleSheet,
 } from "react-native";
 
+import { useColorScheme } from 'react-native';
+import Colors from '@/constants/Colors';
+
 interface ButtonProps
   extends React.ComponentPropsWithoutRef<typeof TouchableOpacity> {
   buttonTextStyle?: StyleProp<TextStyle>;
@@ -23,8 +26,20 @@ const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   const variantStyle = variant ? styles[variant] : styles["default"];
   const sizeStyle = size ? styles[size] : styles["defaultSize"];
+
+  let backgroundColor;
+  if (variant === 'default') {
+    backgroundColor = isDarkMode ? Colors.dark.primary : Colors.light.primary;
+  } else if (variant === 'secondary') {
+    backgroundColor = isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground;
+  } else {
+    backgroundColor = isDarkMode ? Colors.dark.background : Colors.light.background;
+  }
 
   return (
     <TouchableOpacity
@@ -34,6 +49,7 @@ const Button: React.FC<ButtonProps> = ({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor,
         },
         variantStyle,
         sizeStyle,
@@ -54,13 +70,11 @@ const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   default: {
-    backgroundColor: "#272727",
     padding: 10,
     borderRadius: 5,
     color: "#fff",
   },
   secondary: {
-    backgroundColor: "#85c8ba",
     padding: 10,
     borderRadius: 5,
     color: "#fff",

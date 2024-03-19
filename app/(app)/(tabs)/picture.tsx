@@ -1,52 +1,89 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Alert,
+  Dimensions,
+} from "react-native";
 
-import React, { useMemo, useRef, useState } from "react";
-import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
-import { router } from "expo-router";
+import React, { useRef, useState } from "react";
+import {
+  AntDesign,
+  FontAwesome,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { router, useNavigation } from "expo-router";
 import { Button } from "@/components/ui/button";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import RatioChanger from "@/components/ui/ratioChanger";
-import { Camera, useCameraDevice } from "react-native-vision-camera";
-import { CameraCapturedPicture } from "expo-camera";
-import { Fontisto } from "@expo/vector-icons";
+import {
+  Camera,
+  CameraProps,
+  useCameraDevice,
+  useCameraFormat,
+  useCameraPermission,
+} from "react-native-vision-camera";
+import Reanimated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedProps,
+  useSharedValue,
+} from "react-native-reanimated";
 import Icon from "@/components/ui/icon";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import { Feather } from "@expo/vector-icons";
 
-export default function App() {
-  // const [type, setType] = useState(CameraType.back);
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+export default function Picture() {
+  const [photo, setPhoto] = useState<{
+    uri: string;
+    width: number;
+    height: number;
+  } | null>(null);
 
-  // const [permission] = Camera.useCameraPermissions();
-  // const cameraRef = useRef<Camera>(null);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0);
   const [ratio, setRatio] = useState("16:9");
-  // const [margin, setMargin] = useState({ horizontal: 0, vertical: 0 });
   const [position, setPosition] = React.useState<"front" | "back">("back");
   const [flash, setFlash] = React.useState<"on" | "off">("off");
+  const [hdr, setHdr] = React.useState<"on" | "off">("off");
   const device = useCameraDevice(position);
+  const [tarBar, setTarBar] = useState("off");
   const camera = useRef<Camera>(null);
 
-  // const onPinch = React.useCallback(
-  //   (event: any) => {
-  //     const velocity = event.velocity / 20;
+  const { hasPermission, requestPermission } = useCameraPermission();
 
-  //     let newZoom =
-  //         velocity > 0
-  //             ? zoom + event.scale * velocity * (Platform.OS === 'ios' ? 0.01 : 25) // prettier-ignore
-  //             : zoom - event.scale * Math.abs(velocity) * (Platform.OS === 'ios' ? 0.02 : 50); // prettier-ignore
+  const zoom = useSharedValue(device?.neutralZoom);
 
-  //     if (newZoom < 0) newZoom = 0;
-  //     else if (newZoom > 0.5) newZoom = 0.5;
+  const zoomOffset = useSharedValue(0);
+  const gesture = Gesture.Pinch()
+    .onBegin(() => {
+      if (zoomOffset !== undefined) {
+        zoomOffset.value = zoom.value;
+      }
+    })
+    .onUpdate((event) => {
+      const z = zoomOffset.value * event.scale;
+      zoom.value = interpolate(
+        z,
+        [1, 10],
+        [device?.minZoom, device?.maxZoom],
+        Extrapolation.CLAMP
+      );
+    });
 
-  //     setZoom(newZoom);
-  //   },
-  //   [zoom, setZoom]
-  // );
-
-  // const pinchGesture = useMemo(
-  //   () => Gesture.Pinch().onUpdate(onPinch),
-  //   [onPinch]
-  // );
+  const animatedProps = useAnimatedProps<CameraProps>(
+    () => ({ zoom: zoom.value }),
+    [zoom]
+  );
 
   if (device == null)
     return (
@@ -59,35 +96,92 @@ export default function App() {
     if (camera.current === null) return;
     else {
       const photo = await camera.current.takePhoto({
+        enableShutterSound: true,
         flash: flash,
       });
-      setPhoto(photo.path);
+      const { path, width, height } = photo;
+      setPhoto({ uri: path, width: width, height: height });
     }
-    // let options = { quality: 0.8, base64: false, exif: true };
-    // let newPhoto = await cameraRef.current?.takePictureAsync(options);
-    // if (newPhoto) setPhoto(newPhoto);
   };
 
   const cancelPicture = () => {
     setPhoto(null);
   };
 
+  React.useEffect(() => {
+    const askPermission = async () => {
+      if (hasPermission === false) {
+        let response = await requestPermission();
+        if (response === false) {
+          Alert.alert("Permission denied", "You have to open your settings", [
+            { text: "OK", onPress: () => Linking.openSettings() },
+          ]);
+        } else {
+          console.log("Permission granted");
+        }
+      } else {
+        console.log("Permission granted");
+      }
+    };
+    askPermission();
+  }, [hasPermission]);
+
+  const navigation = useNavigation();
+
+  React.useEffect(() => {
+    navigation?.setOptions({
+      tabBarStyle: { display: tarBar === "off" ? "none" : "display" },
+    });
+  }, [tarBar]);
+
+  const screen = Dimensions.get("screen");
+  const format = useCameraFormat(
+    device,
+    hdr === "on"
+      ? [
+          { photoResolution: { width: 2000, height: 2000 } },
+        ]
+      : [
+          { photoAspectRatio: screen.height / screen.width },
+        ]
+  );
+
+  const changePhotoRation = (ratio: string) => {
+    if (ratio === "16:9") {
+      return { marginVertical: 0 };
+    }
+    if (ratio === "4:3") {
+      return { marginVertical: 100 };
+    }
+    if (ratio === "1:1") {
+      return { marginVertical: 200 };
+    }
+    return { marginVertical: 0 };
+  };
+
+  const { marginVertical } = changePhotoRation(ratio);
+
   if (photo) {
     return (
-      <View style={styles.container}>
-        <Image source={{ uri: photo }} style={styles.photoPreview} />
-        <TouchableOpacity
-          onPress={cancelPicture}
-          style={styles.closeButtonContainer}
+      <View style={[styles.container, { marginVertical }]}>
+        <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+        <Icon
+            style={[styles.icons, styles.closeButtonContainer]}
+            onPress={cancelPicture}
         >
           <AntDesign name="close" color="#ffff" size={30} />
-        </TouchableOpacity>
+        </Icon>
+        {/*</TouchableOpacity>*/}
         <Button
           style={styles.nextButtonContainer}
           onPress={() =>
             router.push({
               pathname: "/(app)/modal",
-              // params: { uri: photo.uri },
+              params: {
+                width: photo.width,
+                height: photo.height,
+                uri: photo.uri,
+              },
             })
           }
         >
@@ -97,133 +191,88 @@ export default function App() {
     );
   }
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <Camera
-        photo={true}
-        ref={camera}
-        zoom={zoom}
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-      />
-      <Icon
-        style={styles.flipCamera}
-        name="flip-camera-ios"
-        onPress={() => setPosition(position === "back" ? "front" : "back")}
-      />
-      <Icon
-        style={styles.flash}
-        name={flash === "on" ? "flash-on" : "flash-off"}
-        onPress={() => setFlash(flash === "off" ? "on" : "off")}
-      />
-      <RatioChanger ratio={ratio} setState={setRatio} />
+    <GestureHandlerRootView
+      style={[
+        styles.container,
+        {
+          flex: 1,
+          marginVertical: marginVertical,
+        },
+      ]}
+    >
+      <GestureDetector gesture={gesture}>
+        <ReanimatedCamera
+          format={format}
+          animatedProps={animatedProps}
+          photo={true}
+          ref={camera}
+          zoom={zoom}
+          style={[StyleSheet.absoluteFillObject]}
+          device={device}
+          isActive={true}
+        />
+      </GestureDetector>
+      <View style={styles.iconsContainer}>
+        <Icon
+          style={styles.icons}
+          onPress={() => setPosition(position === "back" ? "front" : "back")}
+        >
+          <MaterialIcons name={"flip-camera-ios"} size={30} color={"#fff"} />
+        </Icon>
+        <Icon
+          style={styles.icons}
+          onPress={() => setFlash(flash === "off" ? "on" : "off")}
+        >
+          <Ionicons
+            name={flash === "on" ? "flash" : "flash-off"}
+            size={30}
+            color={"#fff"}
+          />
+        </Icon>
+        <Icon
+          style={styles.icons}
+          onPress={() => setHdr(hdr === "off" ? "on" : "off")}
+        >
+          <MaterialIcons
+            name={hdr === "on" ? "hdr-on" : "hdr-off"}
+            size={30}
+            color={"#fff"}
+          />
+        </Icon>
 
-      <TouchableOpacity onPress={takePicture} style={styles.iconContainer}>
+        <Icon
+          style={styles.icons}
+          onPress={() => setTarBar(tarBar === "off" ? "on" : "off")}
+        >
+          <Feather
+            name={tarBar === "off" ? "eye-off" : "eye"}
+            size={30}
+            color="#fff"
+          />
+        </Icon>
+        <RatioChanger style={styles.icons} ratio={ratio} setState={setRatio} />
+      </View>
+
+      <TouchableOpacity
+        onPress={takePicture}
+        style={[styles.takePictureIcon, { bottom: tarBar === "off" ? 20 : 20 }]}
+      >
         <FontAwesome name="circle-thin" size={80} color="#fff" />
       </TouchableOpacity>
     </GestureHandlerRootView>
   );
-
-  // React.useEffect(() => {
-  //   if (ratio === "16:9") setMargin({ horizontal: 0, vertical: 0 });
-  //   else if (ratio === "1:1") setMargin({ horizontal: 50, vertical: 200 });
-  //   else if (ratio === "4:3") setMargin({ horizontal: 100, vertical: 300 });
-  // }, [ratio]);
-
-  // if (!permission) {
-  //   return null;
-  // }
-
-  // if (!permission?.granted) {
-  //   Alert.alert("No access to camera", "Please allow access to the camera", [
-  //     {
-  //       text: "Open Settings",
-  //       onPress: () => {
-  //         Linking.openSettings();
-  //       },
-  //       style: "cancel",
-  //     },
-  //   ]);
-  //   return null;
-  // }
-
-  // const toggleCameraType = () => {
-  //   setType(type === CameraType.back ? CameraType.front : CameraType.back);
-  // };
-
-  // return (
-  //   <GestureHandlerRootView
-  //     style={{
-  //       flex: 1,
-  //       marginLeft: margin.horizontal,
-  //       marginRight: margin.horizontal,
-  //       marginTop: margin.vertical,
-  //       marginBottom: margin.vertical,
-  //     }}
-  //   >
-  //     <GestureDetector gesture={pinchGesture}>
-  //     <Camera
-  //     style={StyleSheet.absoluteFill}
-
-  //     isActive={true}
-  //   />
-
-  //       {/* <Camera
-  //         autoFocus
-  //         useCamera2Api
-  //         zoom={zoom}
-  //         ratio={ratio}
-  //         ref={cameraRef}
-  //         type={type}
-  //         style={styles.container}
-  //       > */}
-  //         <MaterialIcons
-  //           onPress={toggleCameraType}
-  //           style={styles.flipCamera}
-  //           name="flip-camera-ios"
-  //           size={30}
-  //           color="#ffff"
-  //         />
-  //         <RatioChanger ratio={ratio} setState={setRatio} />
-  //         <View style={styles.iconContainer}>
-  //           <FontAwesome
-  //             onPress={takePicture}
-  //             name="circle-thin"
-  //             size={80}
-  //             color="#fff"
-  //           />
-  //         </View>
-  //       </Camera>
-  //     </GestureDetector>
-  //   </GestureHandlerRootView>
-  // );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-between',
   },
-  flipCamera: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-  },
-  flash: {
-    position: "absolute",
-    top: 110,
-    right: 20,
-  },
-  iconContainer: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
+  takePictureIcon: {
+    alignSelf: "center", 
   },
   photoPreview: {
     flex: 1,
-    width: "100%",
     height: "100%",
   },
   nextButtonContainer: {
@@ -241,16 +290,18 @@ const styles = StyleSheet.create({
   },
   nextButtonLabel: { color: "#fff", fontWeight: "bold" },
   closeButtonContainer: {
-    display: "flex",
-    alignContent: "center",
-    justifyContent: "center",
-    alignItems: "center",
     position: "absolute",
-    backgroundColor: "rgba(255,255,255, 0.25)",
     top: 40,
     left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 50,
+  },
+  icons: {
+    marginVertical: 10,
+  },
+  iconsContainer: {
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+    marginRight: 20,
+    marginTop: 40,
   },
 });

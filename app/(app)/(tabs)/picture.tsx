@@ -100,7 +100,6 @@ export default function Picture() {
         flash: flash,
       });
       const { path, width, height } = photo;
-      console.log(photo);
       setPhoto({ uri: path, width: width, height: height });
     }
   };
@@ -166,12 +165,13 @@ export default function Picture() {
     return (
       <View style={[styles.container, { marginVertical }]}>
         <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
-        <TouchableOpacity
-          onPress={cancelPicture}
-          style={styles.closeButtonContainer}
+        <Icon
+            style={[styles.icons, styles.closeButtonContainer]}
+            onPress={cancelPicture}
         >
           <AntDesign name="close" color="#ffff" size={30} />
-        </TouchableOpacity>
+        </Icon>
+        {/*</TouchableOpacity>*/}
         <Button
           style={styles.nextButtonContainer}
           onPress={() =>
@@ -290,17 +290,9 @@ const styles = StyleSheet.create({
   },
   nextButtonLabel: { color: "#fff", fontWeight: "bold" },
   closeButtonContainer: {
-    display: "flex",
-    alignContent: "center",
-    justifyContent: "center",
-    alignItems: "center",
     position: "absolute",
-    backgroundColor: "rgba(255,255,255, 0.25)",
     top: 40,
     left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 50,
   },
   icons: {
     marginVertical: 10,

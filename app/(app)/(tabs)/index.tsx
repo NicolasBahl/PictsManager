@@ -11,13 +11,58 @@ export default function Albums() {
 
   const albums = ['Landscape', 'Nature', 'City', 'People', 'Animals', 'Food', 'Art', 'Other', 'Car', 'Travel', 'Architecture', 'Fashion', 'Sport', 'Technology', 'Business', 'Education', 'Health', 'Science', 'Music', 'Film', 'Books', 'Games', 'Hobbies', 'Family', 'Friends', 'Love', 'Selfie'];
 
+  const [selectedAlbums, setSelectedAlbums] = useState<string[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+
+  const handleSelect = (album: string) => {
+    if (!isSelectMode) {
+      return;
+    }
+    if (selectedAlbums.includes(album)) {
+      setSelectedAlbums(selectedAlbums.filter(a => a !== album));
+    } else {
+      setSelectedAlbums([...selectedAlbums, album]);
+    }
+    console.log(selectedAlbums);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Albums</Text>
         <ContextMenuButton
           style={{ position: 'absolute', right: 0 }}
-          menuConfig={{
+          menuConfig={isSelectMode ? {
+            menuTitle: '',
+            menuItems: [{
+              actionKey: 'selectAll',
+              actionTitle: selectedAlbums.length === albums.length ? 'Unselect All' : 'Select All',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'checkmark',
+                },
+              },
+            }, {
+              actionKey: 'delete',
+              actionTitle: 'Delete',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'trash',
+                },
+              },
+            }, {
+              actionKey: 'cancel',
+              actionTitle: 'Cancel',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'xmark',
+                },
+              },
+            }],
+          } : {
             menuTitle: '',
             menuItems: [{
               actionKey: 'select',
@@ -27,7 +72,7 @@ export default function Albums() {
                 imageValue: {
                   systemName: 'checkmark',
                 },
-              }
+              },
             }, {
               menuTitle: 'Sort',
               icon: {
@@ -66,6 +111,22 @@ export default function Albums() {
               }]
             }],
           }}
+          onPressMenuItem={({ nativeEvent }) => {
+            if (nativeEvent.actionKey === 'select') {
+              setIsSelectMode(true);
+            } else if (nativeEvent.actionKey === 'cancel') {
+              setIsSelectMode(false);
+              setSelectedAlbums([]);
+            } else if (nativeEvent.actionKey === 'selectAll') {
+              if (selectedAlbums.length === albums.length) {
+                setSelectedAlbums([]);
+              } else {
+                setSelectedAlbums(albums);
+              }
+            } else if (nativeEvent.actionKey === 'delete') {
+              setSelectedAlbums([]);
+            }
+          }}
         >
           <Ionicons name="ellipsis-horizontal-circle" size={28} color="#467599" />
         </ContextMenuButton>
@@ -81,11 +142,20 @@ export default function Albums() {
         <View style={styles.albumContainer}>
           {albums.map((album, index) => (
             <View key={album} style={styles.album}>
+              {isSelectMode && (
+                <Ionicons
+                  name={selectedAlbums.includes(album) ? 'checkmark-circle' : 'checkmark-circle-outline'}
+                  size={24}
+                  color="#467599"
+                  style={styles.select}
+                  onPress={() => handleSelect(album)}
+                />
+              )}
               <AlbumItem
                 album={album}
                 isFirst={true}
                 isLast={true}
-                onSelect={() => console.log(album)}
+                onSelect={() => handleSelect(album)}
               />
             </View>
           ))}
@@ -120,4 +190,10 @@ const styles = StyleSheet.create({
   album: {
     marginBottom: 8,
   },
+  select: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1,
+  }
 });

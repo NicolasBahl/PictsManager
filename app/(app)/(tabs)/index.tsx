@@ -5,6 +5,7 @@ import { Text, ScrollView, View } from '@/components/Themed';
 import SearchBar from '@/components/SearchBar';
 import AlbumItem from '@/components/AlbumItem';
 import { ContextMenuButton } from 'react-native-ios-context-menu';
+import { router } from 'expo-router';
 
 export default function Albums() {
   const searchBarRef = useRef(null);
@@ -16,6 +17,7 @@ export default function Albums() {
 
   const handleSelect = (album: string) => {
     if (!isSelectMode) {
+      router.push({ pathname: '/(app)/albumDetails', params: { album } });
       return;
     }
     if (selectedAlbums.includes(album)) {

@@ -104,6 +104,15 @@ function AlbumDetails() {
                   },
                 }
               }]
+            }, {
+              actionKey: 'settings',
+              actionTitle: 'Settings',
+              icon: {
+                type: 'IMAGE_SYSTEM',
+                imageValue: {
+                  systemName: 'gear',
+                },
+              },
             }],
           }}
           onPressMenuItem={({ nativeEvent }) => {
@@ -129,6 +138,9 @@ function AlbumDetails() {
               case 'sort-date-asc':
                 break;
               case 'sort-date-desc':
+                break;
+              case 'settings':
+                router.push({ pathname: '/(app)/albumSettings', params: { album } });
                 break;
             }
           }}
@@ -186,6 +198,7 @@ const styles = StyleSheet.create({
   },
   back: {
     flexDirection: "row",
+    marginLeft: -6,
   },
   backText: {
     fontSize: 17,
@@ -194,10 +207,10 @@ const styles = StyleSheet.create({
   titleAlbum: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 6,
     marginBottom: 4,
-    marginLeft: 24,
-    alignSelf: 'flex-start',
+    width: "90%",
+    alignSelf: 'center',
   },
   imageContainer: {
     alignSelf: 'center',

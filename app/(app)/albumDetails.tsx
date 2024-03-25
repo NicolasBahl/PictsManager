@@ -5,10 +5,15 @@ import SearchBar from '@/components/SearchBar';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import { ContextMenuButton } from 'react-native-ios-context-menu';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 function AlbumDetails() {
   const { album } = useLocalSearchParams();
   const router = useRouter();
+
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   const images = [
     'https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg?cs=srgb&dl=pexels-james-wheeler-414612.jpg&fm=jpg',
@@ -26,8 +31,8 @@ function AlbumDetails() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.back}>
-          <Ionicons name="chevron-back" size={30} color="#467599" />
-          <Text style={styles.backText}>All albums</Text>
+          <Ionicons name="chevron-back" size={30} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+          <Text style={styles.backText} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>All albums</Text>
         </TouchableOpacity>
         <ContextMenuButton
           style={{ position: 'absolute', right: 0 }}
@@ -128,7 +133,7 @@ function AlbumDetails() {
             }
           }}
         >
-          <Ionicons name="ellipsis-horizontal-circle" size={28} color="#467599" />
+          <Ionicons name="ellipsis-horizontal-circle" size={28} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
         </ContextMenuButton>
       </View>
       <Text style={styles.titleAlbum}>{album}</Text>
@@ -154,7 +159,7 @@ function AlbumDetails() {
               <Ionicons
                 name={selectedImages.includes(item) ? "checkmark-circle" : "ellipse-outline"}
                 size={24}
-                color="#467599"
+                color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
                 style={styles.imageIcon}
               />
             )}
@@ -184,7 +189,6 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 17,
-    color: "#467599",
     marginTop: 4,
   },
   titleAlbum: {

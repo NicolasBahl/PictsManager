@@ -6,9 +6,14 @@ import SearchBar from '@/components/SearchBar';
 import AlbumItem from '@/components/AlbumItem';
 import { ContextMenuButton } from 'react-native-ios-context-menu';
 import { router } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function Albums() {
   const searchBarRef = useRef(null);
+
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   const albums = ['Landscape', 'Nature', 'City', 'People', 'Animals', 'Food', 'Art', 'Other', 'Car', 'Travel', 'Architecture', 'Fashion', 'Sport', 'Technology', 'Business', 'Education', 'Health', 'Science', 'Music', 'Film', 'Books', 'Games', 'Hobbies', 'Family', 'Friends', 'Love', 'Selfie'];
 
@@ -130,7 +135,7 @@ export default function Albums() {
             }
           }}
         >
-          <Ionicons name="ellipsis-horizontal-circle" size={28} color="#467599" />
+          <Ionicons name="ellipsis-horizontal-circle" size={28} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
         </ContextMenuButton>
       </View>
       <ScrollView>
@@ -148,7 +153,7 @@ export default function Albums() {
                 <Ionicons
                   name={selectedAlbums.includes(album) ? 'checkmark-circle' : 'checkmark-circle-outline'}
                   size={24}
-                  color="#467599"
+                  color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
                   style={styles.select}
                   onPress={() => handleSelect(album)}
                 />

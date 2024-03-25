@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, Animated, Easing } from "react-native";
+import { StyleSheet, TouchableOpacity, Animated, Easing, TextInput } from "react-native";
 import { Text, View, ScrollView } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
@@ -63,7 +63,7 @@ function AlbumSettings() {
         <ScrollView style={styles.usersList} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
           {users.map((user, index) => (
             <View key={index} style={styles.userContainer} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>
-              <Ionicons name="person" size={24} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} style={styles.userIcon} />
+              <Ionicons name="person-outline" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} style={styles.userIcon} />
               <Text style={styles.userEmail} ellipsizeMode="tail" numberOfLines={1}>{user}</Text>
               <TouchableOpacity style={styles.userDelete}>
                 <Ionicons name="close" size={20} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
@@ -71,6 +71,13 @@ function AlbumSettings() {
             </View>
           ))}
         </ScrollView>
+        <Text style={styles.textSettings}>Add a user:</Text>
+        <View style={styles.addUserContainer}>
+          <TextInput style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]} placeholder="Enter user email" />
+          <TouchableOpacity style={[styles.addButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
+            <Ionicons name="add" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -143,6 +150,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 8,
     padding: 4,
+    marginBottom: 10,
   },
   userContainer: {
     height: 50,
@@ -165,6 +173,24 @@ const styles = StyleSheet.create({
   userDelete: {
     position: 'absolute',
     right: 10,
+  },
+  addUserContainer: {
+    flexDirection: 'row',
+    marginTop: 4,
+    marginBottom: 4,
+    height: 40,
+  },
+  input: {
+    borderRadius: 8,
+    padding: 8,
+    marginRight: 4,
+    flex: 4,
+  },
+  addButton: {
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
 });
 

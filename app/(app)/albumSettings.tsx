@@ -8,7 +8,10 @@ import { useColorScheme } from '@/components/useColorScheme';
 
 function AlbumSettings() {
   const { album } = useLocalSearchParams();
+
   const [albumName, setAlbumName] = useState(album);
+  const [tempAlbumName, setTempAlbumName] = useState(album);
+  const isDisabled = albumName === tempAlbumName || tempAlbumName === '';
 
   const users = ['thibaut.ruscher@epitech.eu', 'adrien.marion@epitech.eu', 'nicolas.bahl@epitech.eu', 'mevie.didierjean@epitech.eu'];
 
@@ -31,6 +34,10 @@ function AlbumSettings() {
     setIsEdit(!isEdit);
     startAnimation();
   };
+
+  const handleConfirm = () => {
+    setAlbumName(tempAlbumName);
+  }
 
   const toggleSelectStyle = {
     ...styles.toggleSelect,
@@ -58,11 +65,27 @@ function AlbumSettings() {
       <Text style={styles.title}>Settings</Text>
       <View style={styles.listSettings}>
         <Text style={styles.textSettings}>Name of the album:</Text>
-        <TextInput
-          style={[styles.inputAlbumName, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]}
-          placeholder="Enter album name"
-          onChangeText={setAlbumName}
-        />
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]}
+            placeholder="Enter album name"
+            value={tempAlbumName.toString()}
+            onChangeText={setTempAlbumName}
+          />
+          <TouchableOpacity
+            style={[
+              styles.confirmButton,
+              {
+                backgroundColor: isDisabled ? 'gray' : (isDarkMode ? Colors.dark.primary : Colors.light.primary),
+                opacity: isDisabled ? 0.5 : 1
+              }
+            ]}
+            onPress={handleConfirm}
+            disabled={isDisabled}
+          >
+            <Ionicons name="checkmark" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.textSettings}>User can:</Text>
         <View style={styles.toggleContainer} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
           <TouchableOpacity activeOpacity={1} onPress={handlePress} style={{ width: "100%", height: "100%", position: 'absolute', zIndex: 2 }}>
@@ -86,9 +109,10 @@ function AlbumSettings() {
           ))}
         </ScrollView>
         <Text style={styles.textSettings}>Add a user:</Text>
-        <View style={styles.addUserContainer}>
+        <View style={styles.inputContainer}>
           <TextInput style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]} placeholder="Enter user email" />
-          <TouchableOpacity style={[styles.addButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
+          {/* Quand j'essaye d'edit, je vois pas se que j'écrit */}
+          <TouchableOpacity style={[styles.confirmButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
             <Ionicons name="add" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
           </TouchableOpacity>
         </View>
@@ -194,7 +218,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
   },
-  addUserContainer: {
+  inputContainer: {
     flexDirection: 'row',
     marginTop: 4,
     marginBottom: 4,
@@ -206,7 +230,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
     flex: 4,
   },
-  addButton: {
+  confirmButton: {
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',

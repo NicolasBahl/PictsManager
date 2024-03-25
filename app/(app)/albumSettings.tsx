@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 
 function AlbumSettings() {
   const { album } = useLocalSearchParams();
+  const [albumName, setAlbumName] = useState(album);
 
   const users = ['thibaut.ruscher@epitech.eu', 'adrien.marion@epitech.eu', 'nicolas.bahl@epitech.eu', 'mevie.didierjean@epitech.eu'];
 
@@ -39,16 +40,29 @@ function AlbumSettings() {
     }),
   };
 
+  useEffect(() => {
+    if (albumName) {
+      setAlbumName(albumName);
+    }
+  }, [albumName]);
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.back}>
           <Ionicons name="chevron-back" size={30} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
-          <Text style={styles.backText} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>{album}</Text>
+          <Text style={styles.backText} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>{albumName}</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.title}>Settings</Text>
       <View style={styles.listSettings}>
+        <Text style={styles.textSettings}>Name of the album:</Text>
+        <TextInput
+          style={[styles.inputAlbumName, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]}
+          placeholder="Enter album name"
+          onChangeText={setAlbumName}
+        />
         <Text style={styles.textSettings}>User can:</Text>
         <View style={styles.toggleContainer} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
           <TouchableOpacity activeOpacity={1} onPress={handlePress} style={{ width: "100%", height: "100%", position: 'absolute', zIndex: 2 }}>
@@ -117,6 +131,12 @@ const styles = StyleSheet.create({
   textSettings: {
     fontSize: 16,
     marginTop: 16,
+  },
+  inputAlbumName: {
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 4,
+    marginBottom: 10,
   },
   toggleContainer: {
     width: "100%",

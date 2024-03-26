@@ -67,7 +67,7 @@ function AlbumSettings() {
         <Text style={styles.textSettings}>Name of the album:</Text>
         <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]}
+            style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground, color: isDarkMode ? Colors.dark.text : Colors.light.text }]}
             placeholder="Enter album name"
             value={tempAlbumName.toString()}
             onChangeText={setTempAlbumName}
@@ -110,8 +110,8 @@ function AlbumSettings() {
         </ScrollView>
         <Text style={styles.textSettings}>Add a user:</Text>
         <View style={styles.inputContainer}>
-          <TextInput style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground }]} placeholder="Enter user email" />
-          {/* Quand j'essaye d'edit, je vois pas se que j'écrit */}
+          <TextInput style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground, color: isDarkMode ? Colors.dark.text : Colors.light.text }]} placeholder="Enter user email" />
+          {/* TODO: Quand j'essaye d'edit, je vois pas se que j'écrit */}
           <TouchableOpacity style={[styles.confirmButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
             <Ionicons name="add" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
           </TouchableOpacity>

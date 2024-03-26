@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, Animated, Easing, TextInput } from "react-native";
+import { StyleSheet, TouchableOpacity, Animated, Easing, TextInput, KeyboardAvoidingView, Platform } from "react-native";
 import { Text, View, ScrollView } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from "expo-router";
@@ -55,69 +55,82 @@ function AlbumSettings() {
 
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.back}>
-          <Ionicons name="chevron-back" size={30} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
-          <Text style={styles.backText} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>{albumName}</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.title}>Settings</Text>
-      <View style={styles.listSettings}>
-        <Text style={styles.textSettings}>Name of the album:</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground, color: isDarkMode ? Colors.dark.text : Colors.light.text }]}
-            placeholder="Enter album name"
-            value={tempAlbumName.toString()}
-            onChangeText={setTempAlbumName}
-          />
-          <TouchableOpacity
-            style={[
-              styles.confirmButton,
-              {
-                backgroundColor: isDisabled ? 'gray' : (isDarkMode ? Colors.dark.primary : Colors.light.primary),
-                opacity: isDisabled ? 0.5 : 1
-              }
-            ]}
-            onPress={handleConfirm}
-            disabled={isDisabled}
-          >
-            <Ionicons name="checkmark" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.textSettings}>User can:</Text>
-        <View style={styles.toggleContainer} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
-          <TouchableOpacity activeOpacity={1} onPress={handlePress} style={{ width: "100%", height: "100%", position: 'absolute', zIndex: 2 }}>
-            <Animated.View style={[toggleSelectStyle, { backgroundColor: isDarkMode ? Colors.dark.lighterBackground : Colors.light.lighterBackground }]} />
-            <View style={styles.toggleTextContainer}>
-              <Text>View</Text>
-              <Text>Edit</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.textSettings}>All users who have access to your album:</Text>
-        <ScrollView style={styles.usersList} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
-          {users.map((user, index) => (
-            <View key={index} style={styles.userContainer} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>
-              <Ionicons name="person-outline" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} style={styles.userIcon} />
-              <Text style={styles.userEmail} ellipsizeMode="tail" numberOfLines={1}>{user}</Text>
-              <TouchableOpacity style={styles.userDelete}>
-                <Ionicons name="close" size={20} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      <ScrollView keyboardShouldPersistTaps="always">
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.back}>
+              <Ionicons name="chevron-back" size={30} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+              <Text style={styles.backText} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>{albumName}</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.title}>Settings</Text>
+          <View style={styles.listSettings}>
+            <Text style={styles.textSettings}>Name of the album:</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground, color: isDarkMode ? Colors.dark.text : Colors.light.text }]}
+                placeholder="Enter album name"
+                value={tempAlbumName.toString()}
+                onChangeText={setTempAlbumName}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.confirmButton,
+                  {
+                    backgroundColor: isDisabled ? 'gray' : (isDarkMode ? Colors.dark.primary : Colors.light.primary),
+                    opacity: isDisabled ? 0.5 : 1
+                  }
+                ]}
+                onPress={handleConfirm}
+                disabled={isDisabled}
+              >
+                <Ionicons name="checkmark" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
               </TouchableOpacity>
             </View>
-          ))}
-        </ScrollView>
-        <Text style={styles.textSettings}>Add a user:</Text>
-        <View style={styles.inputContainer}>
-          <TextInput style={[styles.input, { backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground, color: isDarkMode ? Colors.dark.text : Colors.light.text }]} placeholder="Enter user email" />
-          {/* TODO: Quand j'essaye d'edit, je vois pas se que j'écrit */}
-          <TouchableOpacity style={[styles.confirmButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
-            <Ionicons name="add" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
-          </TouchableOpacity>
+            <Text style={styles.textSettings}>User can:</Text>
+            <View style={styles.toggleContainer} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
+              <TouchableOpacity activeOpacity={1} onPress={handlePress} style={{ width: "100%", height: "100%", position: 'absolute', zIndex: 2 }}>
+                <Animated.View style={[toggleSelectStyle, { backgroundColor: isDarkMode ? Colors.dark.lighterBackground : Colors.light.lighterBackground }]} />
+                <View style={styles.toggleTextContainer}>
+                  <Text>View</Text>
+                  <Text>Edit</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.textSettings}>All users who have access to your album:</Text>
+            <ScrollView style={styles.usersList} lightColor={Colors.light.lightBackground} darkColor={Colors.dark.lightBackground}>
+              {users.map((user, index) => (
+                <View key={index} style={styles.userContainer} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>
+                  <Ionicons name="person-outline" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} style={styles.userIcon} />
+                  <Text style={styles.userEmail} ellipsizeMode="tail" numberOfLines={1}>{user}</Text>
+                  <TouchableOpacity style={styles.userDelete}>
+                    <Ionicons name="close" size={20} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+            <Text style={styles.textSettings}>Add a user:</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground,
+                    color: isDarkMode ? Colors.dark.text : Colors.light.text
+                  }
+                ]}
+                placeholder="Enter user email"
+                keyboardType="email-address"
+                autoComplete="email" />
+              <TouchableOpacity style={[styles.confirmButton, { backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary }]}>
+                <Ionicons name="add" size={24} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

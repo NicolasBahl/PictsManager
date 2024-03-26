@@ -33,6 +33,12 @@ export type Album = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type AlbumOrderBy = {
+  size?: InputMaybe<OrderBy>;
+  title?: InputMaybe<OrderBy>;
+  updatedAt?: InputMaybe<OrderBy>;
+};
+
 export enum AlbumPermission {
   CanRead = 'CAN_READ',
   CanWrite = 'CAN_WRITE'
@@ -127,6 +133,11 @@ export type MutationUpdateTagArgs = {
   tags: Array<Scalars['String']['input']>;
 };
 
+export enum OrderBy {
+  Asc = 'Asc',
+  Desc = 'Desc'
+}
+
 export type Photo = {
   __typename?: 'Photo';
   id: Scalars['ID']['output'];
@@ -140,6 +151,7 @@ export type Query = {
   __typename?: 'Query';
   album?: Maybe<Album>;
   albums: Array<Album>;
+  albumsCount: Scalars['Int']['output'];
   me?: Maybe<User>;
   photos: Array<Photo>;
 };
@@ -151,14 +163,22 @@ export type QueryAlbumArgs = {
 
 
 export type QueryAlbumsArgs = {
-  name: Scalars['String']['input'];
+  orderBy?: InputMaybe<AlbumOrderBy>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<WhereAlbumInput>;
+};
+
+
+export type QueryAlbumsCountArgs = {
+  where?: InputMaybe<WhereAlbumInput>;
 };
 
 
 export type QueryPhotosArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
-  where: WherePhotoInput;
+  where?: InputMaybe<WherePhotoInput>;
 };
 
 export type Tag = {
@@ -182,6 +202,11 @@ export enum UserRole {
   User = 'USER'
 }
 
+export type WhereAlbumInput = {
+  isMyAlbum?: InputMaybe<Scalars['Boolean']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type WherePhotoInput = {
   albumId?: InputMaybe<Scalars['ID']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
@@ -201,6 +226,16 @@ export type AddPhotoMutationVariables = Exact<{
 
 
 export type AddPhotoMutation = { __typename?: 'Mutation', createPhoto: { __typename?: 'Photo', id: string } };
+
+export type AlbumsQueryVariables = Exact<{
+  orderBy?: InputMaybe<AlbumOrderBy>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<WhereAlbumInput>;
+}>;
+
+
+export type AlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'Album', id: string, title: string }> };
 
 export type CurrentAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -280,6 +315,50 @@ export function useAddPhotoMutation(baseOptions?: Apollo.MutationHookOptions<Add
 export type AddPhotoMutationHookResult = ReturnType<typeof useAddPhotoMutation>;
 export type AddPhotoMutationResult = Apollo.MutationResult<AddPhotoMutation>;
 export type AddPhotoMutationOptions = Apollo.BaseMutationOptions<AddPhotoMutation, AddPhotoMutationVariables>;
+export const AlbumsDocument = gql`
+    query Albums($orderBy: AlbumOrderBy, $skip: Int, $take: Int, $where: WhereAlbumInput) {
+  albums(orderBy: $orderBy, skip: $skip, take: $take, where: $where) {
+    id
+    title
+  }
+}
+    `;
+
+/**
+ * __useAlbumsQuery__
+ *
+ * To run a query within a React component, call `useAlbumsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAlbumsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAlbumsQuery({
+ *   variables: {
+ *      orderBy: // value for 'orderBy'
+ *      skip: // value for 'skip'
+ *      take: // value for 'take'
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useAlbumsQuery(baseOptions?: Apollo.QueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+      }
+export function useAlbumsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+        }
+export function useAlbumsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+        }
+export type AlbumsQueryHookResult = ReturnType<typeof useAlbumsQuery>;
+export type AlbumsLazyQueryHookResult = ReturnType<typeof useAlbumsLazyQuery>;
+export type AlbumsSuspenseQueryHookResult = ReturnType<typeof useAlbumsSuspenseQuery>;
+export type AlbumsQueryResult = Apollo.QueryResult<AlbumsQuery, AlbumsQueryVariables>;
 export const CurrentAlbumsDocument = gql`
     query CurrentAlbums {
   me {

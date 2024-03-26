@@ -8,6 +8,12 @@ type Album {
   updatedAt: DateTime!
 }
 
+input AlbumOrderBy {
+  size: OrderBy
+  title: OrderBy
+  updatedAt: OrderBy
+}
+
 enum AlbumPermission {
   CAN_READ
   CAN_WRITE
@@ -49,6 +55,11 @@ type Mutation {
   updateTag(id: ID!, tags: [String!]!): Photo!
 }
 
+enum OrderBy {
+  Asc
+  Desc
+}
+
 type Photo {
   id: ID!
   media: Media!
@@ -59,9 +70,10 @@ type Photo {
 
 type Query {
   album(id: ID!): Album
-  albums(name: String!): [Album!]!
+  albums(orderBy: AlbumOrderBy, skip: Int = 0, take: Int = 10, where: WhereAlbumInput): [Album!]!
+  albumsCount(where: WhereAlbumInput): Int!
   me: User
-  photos(skip: Int = 0, take: Int = 10, where: WherePhotoInput!): [Photo!]!
+  photos(skip: Int = 0, take: Int = 10, where: WherePhotoInput): [Photo!]!
 }
 
 type Tag {
@@ -84,6 +96,11 @@ type User {
 enum UserRole {
   ADMIN
   USER
+}
+
+input WhereAlbumInput {
+  isMyAlbum: Boolean
+  title: String
 }
 
 input WherePhotoInput {

@@ -9,7 +9,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 function AlbumDetails() {
-  const { album } = useLocalSearchParams();
+  const { albumTitle,albumId } = useLocalSearchParams();
   const router = useRouter();
 
   const colorScheme = useColorScheme();
@@ -140,7 +140,7 @@ function AlbumDetails() {
               case 'sort-date-desc':
                 break;
               case 'settings':
-                router.push({ pathname: '/(app)/albumSettings', params: { album } });
+                router.push({ pathname: '/(app)/albumSettings', params: { albumId } });
                 break;
             }
           }}
@@ -148,7 +148,7 @@ function AlbumDetails() {
           <Ionicons name="ellipsis-horizontal-circle" size={28} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
         </ContextMenuButton>
       </View>
-      <Text style={styles.titleAlbum}>{album}</Text>
+      <Text style={styles.titleAlbum}>{albumTitle}</Text>
       <SearchBar />
       <FlatList
         data={images}

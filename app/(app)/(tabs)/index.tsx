@@ -34,7 +34,7 @@ export default function Albums() {
     if (!isSelectMode) {
       router.push({
         pathname: "/(app)/albumDetails",
-        params: { album: album.title },
+        params: { albumTitle: album.title, albumId: album.id },
       });
       return;
     }
@@ -43,7 +43,6 @@ export default function Albums() {
     } else {
       setSelectedAlbums([...selectedAlbums, album]);
     }
-    console.log(selectedAlbums);
   };
 
   return (
@@ -247,6 +246,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   loader: {
-    marginVertical: 10
+    marginVertical: 20
   }
 });

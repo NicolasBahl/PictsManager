@@ -33,7 +33,7 @@ function AppLayoutNav() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: "transparentModal" }} />
+      <Stack.Screen name="previewPicture"  />
     </Stack>
   );
 }

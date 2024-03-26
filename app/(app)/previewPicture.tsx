@@ -7,39 +7,41 @@ import {
   TextInputChangeEventData,
   KeyboardAvoidingView,
   Platform,
-  Modal,
-  Animated,
+  Alert,
 } from "react-native";
 import { Text, View, ScrollView, BackgroundColor } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
-import { Button } from "../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { AlbumSelector } from "@/components/AlbumSelector";
 import { useEffect, useState, useRef } from "react";
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import Colors from "@/constants/Colors";
+import { useColorScheme } from "@/components/useColorScheme";
+import {
+  useAddPhotoMutation,
+  useCurrentAlbumsQuery,
+} from "@/graphql/generated/graphql";
+import { ReactNativeFile } from "apollo-upload-client";
 export default function ModalScreen() {
-  const { uri } = useLocalSearchParams();
+  const { uri, metadata } = useLocalSearchParams();
   const [imageRatio, setImageRatio] = useState(1);
 
   const [inputValue, setInputValue] = useState("");
   const [capturedText, setCapturedText] = useState<string[]>([]);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedAlbum, setSelectedAlbum] = useState('Landscapes');
-  const albums = ['Landscape', 'Nature', 'City', 'People', 'Animals', 'Food', 'Art', 'Other', 'Car', 'Travel', 'Architecture', 'Fashion', 'Sport', 'Technology', 'Business', 'Education', 'Health', 'Science', 'Music', 'Film', 'Books', 'Games', 'Hobbies', 'Family', 'Friends', 'Love', 'Selfie'];
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
-  const albumRef = useRef<TouchableOpacity>(null);
-  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+  const { data: albumData } = useCurrentAlbumsQuery();
+  const [addPhoto, { loading }] = useAddPhotoMutation();
 
   const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const isDarkMode = colorScheme === "dark";
 
   const removeText = (index: number) => {
     const newTextArray = capturedText.filter((_, i) => i !== index);
     setCapturedText(newTextArray);
   };
   const handleInputChange = (
-    e: NativeSyntheticEvent<TextInputChangeEventData>
+    e: NativeSyntheticEvent<TextInputChangeEventData>,
   ) => {
     setInputValue(e.nativeEvent.text);
 
@@ -55,20 +57,57 @@ export default function ModalScreen() {
     router.back();
   };
 
+  const onAddPhoto = async () => {
+    const photo = new ReactNativeFile({
+      uri,
+      type: "image/jpeg",
+      name: "photo.jpg",
+    });
+    await addPhoto({
+      variables: {
+        data: {
+          albumId: selectedAlbum ?? undefined,
+          tags: capturedText,
+          photo,
+          metadata: metadata,
+        },
+      },
+      onError(e) {
+        console.log(JSON.stringify(e));
+      },
+      onCompleted() {
+        router.push({
+          pathname: "/(app)/(tabs)/picture",
+        });
+      },
+    });
+  };
+
   // Get the image ratio to set the aspect ratio of the image
   useEffect(() => {
     Image.getSize(uri.toString(), (width, height) => {
       setImageRatio(width / height);
     });
-  }, [uri]);
+  }, [uri, metadata]);
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ScrollView contentContainerStyle={styles.container}>
-        <Image source={{ uri: uri.toString() }} style={[styles.image, { aspectRatio: imageRatio }]} />
+        <Image
+          source={{ uri: uri.toString() }}
+          style={[styles.image, { aspectRatio: imageRatio }]}
+        />
         <Text style={styles.title}>Tags</Text>
-        <View style={styles.tagsInputContainer} backgroundColor={BackgroundColor.LightBackground}>
-          <View style={styles.scrollView} backgroundColor={BackgroundColor.LightBackground}>
+        <View
+          style={styles.tagsInputContainer}
+          backgroundColor={BackgroundColor.LightBackground}
+        >
+          <View
+            style={styles.scrollView}
+            backgroundColor={BackgroundColor.LightBackground}
+          >
             {capturedText.map((text, index) => (
               <TouchableOpacity
                 onPress={() => removeText(index)}
@@ -94,17 +133,33 @@ export default function ModalScreen() {
             />
           </View>
         </View>
-        <Text style={styles.title}>Album</Text>
-        <AlbumSelector
-          albums={albums}
-          selectedAlbum={selectedAlbum}
-          onAlbumSelect={setSelectedAlbum}
-        />
+        {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
+          <>
+            <Text style={styles.title}>Album</Text>
+            <AlbumSelector
+              albums={albumData?.me?.albums}
+              selectedAlbum={selectedAlbum}
+              onAlbumSelect={setSelectedAlbum}
+            />
+          </>
+        )}
         <View style={styles.buttonContainer}>
-          <Button style={styles.button} onPress={onCancel} variant="secondary">
+          <Button
+            activeOpacity={0.5}
+            style={styles.button}
+            onPress={onCancel}
+            variant="secondary"
+          >
             <Text style={styles.buttonText}>Cancel</Text>
           </Button>
-          <Button style={styles.button} onPress={onCancel} variant="default">
+
+          <Button
+            style={styles.button}
+            disabled={loading}
+            activeOpacity={0.5}
+            onPress={onAddPhoto}
+            variant="default"
+          >
             <Text style={styles.buttonText}>Save</Text>
           </Button>
         </View>
@@ -140,7 +195,8 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderRadius: 8,
   },
   buttonText: {

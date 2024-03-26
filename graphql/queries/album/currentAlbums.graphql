@@ -1,0 +1,9 @@
+query CurrentAlbums {
+    me {
+        id
+        albums {
+            id
+            title
+        }
+    }
+}

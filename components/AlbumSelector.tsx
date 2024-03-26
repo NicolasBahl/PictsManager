@@ -1,11 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, ScrollView, Animated, Modal, LayoutChangeEvent } from 'react-native';
-import { useColorScheme } from '@/components/useColorScheme';
+import { StyleSheet, View, ScrollView, Animated, Modal, LayoutChangeEvent } from 'react-native';
 import AlbumItem from './AlbumItem';
-
+import { Album } from "@/graphql/generated/graphql";
 interface AlbumSelectorProps {
-  albums: string[];
-  selectedAlbum: string;
+    albums: Pick<Album, "title" | "id">[];
+    selectedAlbum: string | null;
   onAlbumSelect: (album: string) => void;
   onSelect?: () => void;
   onLayout?: (event: LayoutChangeEvent) => void;
@@ -66,6 +65,28 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
     width: "80%",
+  },
+  firstAlbum: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  lastAlbum: {
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  oneAlbum: {
+    borderRadius: 8,
+  },
+  albumIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 4,
+    margin: 4,
+    resizeMode: "cover",
+  },
+  albumName: {
+    fontSize: 20,
+    marginLeft: 8,
   },
   modalContainer: {
     position: "absolute",

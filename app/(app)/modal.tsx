@@ -99,7 +99,6 @@ export default function ModalScreen() {
           albums={albums}
           selectedAlbum={selectedAlbum}
           onAlbumSelect={setSelectedAlbum}
-          onSelect={() => { }}
         />
         <View style={styles.buttonContainer}>
           <Button style={styles.button} onPress={onCancel} variant="secondary">

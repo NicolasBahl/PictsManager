@@ -7,7 +7,7 @@ interface AlbumSelectorProps {
   albums: string[];
   selectedAlbum: string;
   onAlbumSelect: (album: string) => void;
-  onSelect: () => void;
+  onSelect?: () => void;
   onLayout?: (event: LayoutChangeEvent) => void;
 }
 

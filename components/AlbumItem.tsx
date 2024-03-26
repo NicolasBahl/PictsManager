@@ -40,7 +40,7 @@ const AlbumItem: React.FC<AlbumItemProps> = ({
         source={require("@/assets/images/placeholder.jpg")}
         style={styles.albumIcon}
       />
-      <Text style={styles.albumName}>{album.title}</Text>
+      <Text style={[styles.albumName]}>{album && album.title}</Text>
     </TouchableOpacity>
   );
 };

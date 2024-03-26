@@ -125,29 +125,15 @@ export default function Picture() {
   }, [hasPermission]);
 
   const screen = Dimensions.get("screen");
-  const format = useCameraFormat(
-    device,
-    [{ photoAspectRatio: ratio === '16:9' ? 16 / 9 : ratio === '4:3' ? 4 / 3 : 1 }],
-  );
-
-  const changePhotoRation = (ratio: string) => {
-    if (ratio === "16:9") {
-      return { marginVertical: 0 };
-    }
-    if (ratio === "4:3") {
-      return { marginVertical: 0 };
-    }
-    if (ratio === "1:1") {
-      return { marginVertical: 0 };
-    }
-    return { marginVertical: 0 };
-  };
-
-  const { marginVertical } = changePhotoRation(ratio);
+  const format = useCameraFormat(device, [
+    { photoResolution: 'max' },
+    { videoResolution: 'max' },
+    { fps: 'max' },
+  ]);
 
   if (photo) {
     return (
-      <View style={[styles.container, { marginVertical }]}>
+      <View style={styles.container}>
         <Image source={{ uri: photo.path }} style={[styles.photoPreview]} />
         <Icon
           style={[styles.icons, styles.closeButtonContainer]}
@@ -180,7 +166,6 @@ export default function Picture() {
         styles.container,
         {
           flex: 1,
-          marginVertical: marginVertical,
         },
       ]}
     >

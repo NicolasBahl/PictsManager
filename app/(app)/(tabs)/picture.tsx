@@ -50,7 +50,6 @@ export default function Picture() {
   const [ratio, setRatio] = useState("16:9");
   const [position, setPosition] = React.useState<"front" | "back">("back");
   const [flash, setFlash] = React.useState<"on" | "off">("off");
-  const [hdr, setHdr] = React.useState<"on" | "off">("off");
   const device = useCameraDevice(position);
   const camera = useRef<Camera>(null);
 
@@ -98,6 +97,7 @@ export default function Picture() {
         enableShutterSound: true,
         flash: flash,
       });
+      console.log(`Photo dimensions: ${photo.width}x${photo.height}`);
       setPhoto(photo);
     }
   };
@@ -127,9 +127,7 @@ export default function Picture() {
   const screen = Dimensions.get("screen");
   const format = useCameraFormat(
     device,
-    hdr === "on"
-      ? [{ photoResolution: { width: 2000, height: 2000 } }]
-      : [{ photoAspectRatio: screen.height / screen.width }],
+    [{ photoAspectRatio: ratio === '16:9' ? 16 / 9 : ratio === '4:3' ? 4 / 3 : 1 }],
   );
 
   const changePhotoRation = (ratio: string) => {
@@ -137,10 +135,10 @@ export default function Picture() {
       return { marginVertical: 0 };
     }
     if (ratio === "4:3") {
-      return { marginVertical: 100 };
+      return { marginVertical: 0 };
     }
     if (ratio === "1:1") {
-      return { marginVertical: 200 };
+      return { marginVertical: 0 };
     }
     return { marginVertical: 0 };
   };
@@ -211,16 +209,6 @@ export default function Picture() {
         >
           <Ionicons
             name={flash === "on" ? "flash" : "flash-off"}
-            size={30}
-            color={"#fff"}
-          />
-        </Icon>
-        <Icon
-          style={styles.icons}
-          onPress={() => setHdr(hdr === "off" ? "on" : "off")}
-        >
-          <MaterialIcons
-            name={hdr === "on" ? "hdr-on" : "hdr-off"}
             size={30}
             color={"#fff"}
           />

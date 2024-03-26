@@ -1,5 +1,27 @@
+type Album {
+  accessByUsers: [User!]!
+  createdAt: DateTime!
+  id: ID!
+  owner: User!
+  photos: [Photo!]!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum AlbumPermission {
+  CAN_READ
+  CAN_WRITE
+}
+
 type AuthPayload {
   token: String!
+}
+
+input CreatePhotoInput {
+  albumId: ID
+  metadata: JSON
+  photo: Upload!
+  tags: [String!]!
 }
 
 """
@@ -9,20 +31,62 @@ scalar DateTime
 
 scalar JSON
 
+type Media {
+  id: ID!
+  url: String
+}
+
 type Mutation {
+  addAccessUser(id: ID!, userEmail: String!): Album!
+  createAlbum(title: String!): Album!
+  createPhoto(data: CreatePhotoInput!): Photo!
+  deleteAlbum(id: ID!): Album!
   deleteUser(id: ID!): User!
+  removeAccessUser(id: ID!, userEmail: String!): Album!
   signIn(email: String!, password: String!): AuthPayload!
   signUp(email: String!, password: String!): AuthPayload!
+  updateAlbum(id: ID!, permission: AlbumPermission, title: String): Album!
+  updateTag(id: ID!, tags: [String!]!): Photo!
+}
+
+type Photo {
+  id: ID!
+  media: Media!
+  metadata: JSON!
+  owner: User!
+  tags: [Tag!]!
 }
 
 type Query {
+  album(id: ID!): Album
+  albums(name: String!): [Album!]!
   me: User
+  photos(skip: Int = 0, take: Int = 10, where: WherePhotoInput!): [Photo!]!
+}
+
+type Tag {
+  id: ID!
+  name: String!
 }
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
 
 type User {
+  albums: [Album!]!
+  createdAt: DateTime!
   email: String!
   id: ID!
+  password: String!
+  role: UserRole!
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+input WherePhotoInput {
+  albumId: ID
+  search: String
 }

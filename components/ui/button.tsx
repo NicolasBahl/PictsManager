@@ -6,8 +6,8 @@ import {
   StyleSheet,
 } from "react-native";
 
-import { useColorScheme } from 'react-native';
-import Colors from '@/constants/Colors';
+import { useColorScheme } from "react-native";
+import Colors from "@/constants/Colors";
 
 interface ButtonProps
   extends React.ComponentPropsWithoutRef<typeof TouchableOpacity> {
@@ -27,18 +27,30 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const isDarkMode = colorScheme === "dark";
 
   const variantStyle = variant ? styles[variant] : styles["default"];
   const sizeStyle = size ? styles[size] : styles["defaultSize"];
 
   let backgroundColor;
-  if (variant === 'default') {
-    backgroundColor = isDarkMode ? Colors.dark.primary : Colors.light.primary;
-  } else if (variant === 'secondary') {
-    backgroundColor = isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground;
+  if (variant === "default") {
+    backgroundColor = props.disabled
+      ? isDarkMode
+        ? Colors.dark.disabled
+        : Colors.light.disabled
+      : isDarkMode
+        ? Colors.dark.primary
+        : Colors.light.primary;
+  } else if (variant === "secondary") {
+    backgroundColor = props.disabled
+      ? isDarkMode
+        ? Colors.dark.disabled
+        : Colors.light.disabled
+      : isDarkMode
+        ? Colors.dark.lightBackground
+        : Colors.light.lightBackground;
   } else {
-    backgroundColor = isDarkMode ? Colors.dark.background : Colors.light.background;
+    backgroundColor = "transparent";
   }
 
   return (
@@ -49,7 +61,7 @@ const Button: React.FC<ButtonProps> = ({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor,
+          backgroundColor
         },
         variantStyle,
         sizeStyle,

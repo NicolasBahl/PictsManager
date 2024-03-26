@@ -16,7 +16,7 @@ import {
   Ionicons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { Button } from "@/components/ui/button";
 import RatioChanger from "@/components/ui/ratioChanger";
 import {
@@ -38,25 +38,20 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
-import { Feather } from "@expo/vector-icons";
+import type { PhotoFile } from "react-native-vision-camera/src/PhotoFile";
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 export default function Picture() {
-  const [photo, setPhoto] = useState<{
-    uri: string;
-    width: number;
-    height: number;
-  } | null>(null);
+  const [photo, setPhoto] = useState<PhotoFile | null>(null);
 
   const [ratio, setRatio] = useState("16:9");
   const [position, setPosition] = React.useState<"front" | "back">("back");
   const [flash, setFlash] = React.useState<"on" | "off">("off");
   const [hdr, setHdr] = React.useState<"on" | "off">("off");
   const device = useCameraDevice(position);
-  const [tarBar, setTarBar] = useState("off");
   const camera = useRef<Camera>(null);
 
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -67,22 +62,26 @@ export default function Picture() {
   const gesture = Gesture.Pinch()
     .onBegin(() => {
       if (zoomOffset !== undefined) {
-        zoomOffset.value = zoom.value;
+        if (typeof zoom.value === "number") {
+          zoomOffset.value = zoom.value;
+        }
       }
     })
     .onUpdate((event) => {
       const z = zoomOffset.value * event.scale;
-      zoom.value = interpolate(
-        z,
-        [1, 10],
-        [device?.minZoom, device?.maxZoom],
-        Extrapolation.CLAMP
-      );
+      if (device) {
+        zoom.value = interpolate(
+          z,
+          [1, 10],
+          [device?.minZoom, device?.maxZoom],
+          Extrapolation.CLAMP,
+        );
+      }
     });
 
   const animatedProps = useAnimatedProps<CameraProps>(
     () => ({ zoom: zoom.value }),
-    [zoom]
+    [zoom],
   );
 
   if (device == null)
@@ -99,8 +98,7 @@ export default function Picture() {
         enableShutterSound: true,
         flash: flash,
       });
-      const { path, width, height } = photo;
-      setPhoto({ uri: path, width: width, height: height });
+      setPhoto(photo);
     }
   };
 
@@ -110,9 +108,9 @@ export default function Picture() {
 
   React.useEffect(() => {
     const askPermission = async () => {
-      if (hasPermission === false) {
+      if (!hasPermission) {
         let response = await requestPermission();
-        if (response === false) {
+        if (!response) {
           Alert.alert("Permission denied", "You have to open your settings", [
             { text: "OK", onPress: () => Linking.openSettings() },
           ]);
@@ -126,24 +124,12 @@ export default function Picture() {
     askPermission();
   }, [hasPermission]);
 
-  const navigation = useNavigation();
-
-  React.useEffect(() => {
-    navigation?.setOptions({
-      tabBarStyle: { display: tarBar === "off" ? "none" : "display" },
-    });
-  }, [tarBar]);
-
   const screen = Dimensions.get("screen");
   const format = useCameraFormat(
     device,
     hdr === "on"
-      ? [
-          { photoResolution: { width: 2000, height: 2000 } },
-        ]
-      : [
-          { photoAspectRatio: screen.height / screen.width },
-        ]
+      ? [{ photoResolution: { width: 2000, height: 2000 } }]
+      : [{ photoAspectRatio: screen.height / screen.width }],
   );
 
   const changePhotoRation = (ratio: string) => {
@@ -164,23 +150,23 @@ export default function Picture() {
   if (photo) {
     return (
       <View style={[styles.container, { marginVertical }]}>
-        <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+        <Image source={{ uri: photo.path }} style={[styles.photoPreview]} />
         <Icon
-            style={[styles.icons, styles.closeButtonContainer]}
-            onPress={cancelPicture}
+          style={[styles.icons, styles.closeButtonContainer]}
+          onPress={cancelPicture}
         >
           <AntDesign name="close" color="#ffff" size={30} />
         </Icon>
-        {/*</TouchableOpacity>*/}
         <Button
           style={styles.nextButtonContainer}
           onPress={() =>
             router.push({
-              pathname: "/(app)/modal",
+              pathname: "/(app)/previewPicture",
               params: {
-                width: photo.width,
-                height: photo.height,
-                uri: photo.uri,
+                uri: photo?.path,
+                metadata: JSON.stringify(photo?.metadata),
+                height: photo?.height,
+                width: photo?.width,
               },
             })
           }
@@ -239,24 +225,9 @@ export default function Picture() {
             color={"#fff"}
           />
         </Icon>
-
-        <Icon
-          style={styles.icons}
-          onPress={() => setTarBar(tarBar === "off" ? "on" : "off")}
-        >
-          <Feather
-            name={tarBar === "off" ? "eye-off" : "eye"}
-            size={30}
-            color="#fff"
-          />
-        </Icon>
         <RatioChanger style={styles.icons} ratio={ratio} setState={setRatio} />
       </View>
-
-      <TouchableOpacity
-        onPress={takePicture}
-        style={[styles.takePictureIcon, { bottom: tarBar === "off" ? 20 : 20 }]}
-      >
+      <TouchableOpacity onPress={takePicture} style={[styles.takePictureIcon]}>
         <FontAwesome name="circle-thin" size={80} color="#fff" />
       </TouchableOpacity>
     </GestureHandlerRootView>
@@ -266,14 +237,13 @@ export default function Picture() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   takePictureIcon: {
-    alignSelf: "center", 
+    alignSelf: "center",
   },
   photoPreview: {
     flex: 1,
-    height: "100%",
   },
   nextButtonContainer: {
     backgroundColor: "#08aaff",

@@ -1,16 +1,27 @@
-import React, { useRef, useState } from 'react';
-import { StyleSheet, View, ScrollView, Animated, Modal, LayoutChangeEvent } from 'react-native';
-import AlbumItem from './AlbumItem';
+import React, { useRef, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Animated,
+  Modal,
+  LayoutChangeEvent,
+} from "react-native";
+import AlbumItem from "./AlbumItem";
 import { Album } from "@/graphql/generated/graphql";
 interface AlbumSelectorProps {
-    albums: Pick<Album, "title" | "id">[];
-    selectedAlbum: string | null;
-  onAlbumSelect: (album: string) => void;
+  albums: Pick<Album, "id" | "title">[];
+  selectedAlbum: Pick<Album, "id" | "title">;
+  onAlbumSelect: (album: string | null) => void;
   onSelect?: () => void;
   onLayout?: (event: LayoutChangeEvent) => void;
 }
 
-export const AlbumSelector: React.FC<AlbumSelectorProps> = ({ albums, selectedAlbum, onAlbumSelect }) => {
+export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
+  albums,
+  selectedAlbum,
+  onAlbumSelect,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
   const albumRef = useRef<View>(null);
@@ -19,7 +30,10 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({ albums, selectedAl
     albumRef.current?.measureInWindow((x, y, width, height) => {
       setModalPosition({
         x,
-        y: (albums.length > 3) ? y - (270 - height) : y - (height * (albums.length - 1))
+        y:
+          albums.length > 3
+            ? y - (270 - height)
+            : y - height * (albums.length - 1),
       });
       setIsMenuOpen(true);
     });
@@ -40,16 +54,21 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({ albums, selectedAl
         transparent
         onRequestClose={() => setIsMenuOpen(false)}
       >
-        <Animated.View style={[styles.modalContainer, { top: modalPosition.y, left: modalPosition.x }]}>
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            { top: modalPosition.y, left: modalPosition.x },
+          ]}
+        >
           <ScrollView>
             {albums.map((album, index) => (
               <AlbumItem
-                key={album}
+                key={album.id}
                 album={album}
                 isFirst={index === 0}
                 isLast={index === albums.length - 1}
                 onSelect={() => {
-                  onAlbumSelect(album);
+                  onAlbumSelect(album.id);
                   setIsMenuOpen(false);
                 }}
               />

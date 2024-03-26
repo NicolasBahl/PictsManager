@@ -1,19 +1,25 @@
-import React from 'react';
-import { Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Text } from "@/components/Themed";
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import Colors from "@/constants/Colors";
+import { useColorScheme } from "@/components/useColorScheme";
+import { Album } from "@/graphql/generated/graphql";
 
 interface AlbumItemProps {
-  album: string;
+  album: Pick<Album, "title" | "id">;
   isFirst: boolean;
   isLast: boolean;
   onSelect: () => void;
 }
 
-const AlbumItem: React.FC<AlbumItemProps> = ({ album, isFirst, isLast, onSelect }) => {
+const AlbumItem: React.FC<AlbumItemProps> = ({
+  album,
+  isFirst,
+  isLast,
+  onSelect,
+}) => {
   const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const isDarkMode = colorScheme === "dark";
 
   return (
     <TouchableOpacity
@@ -24,15 +30,17 @@ const AlbumItem: React.FC<AlbumItemProps> = ({ album, isFirst, isLast, onSelect 
         isFirst ? styles.firstAlbum : {},
         isLast ? styles.lastAlbum : {},
         {
-          backgroundColor: isDarkMode ? Colors.dark.lightBackground : Colors.light.lightBackground
-        }
+          backgroundColor: isDarkMode
+            ? Colors.dark.lightBackground
+            : Colors.light.lightBackground,
+        },
       ]}
     >
       <Image
         source={require("@/assets/images/placeholder.jpg")}
         style={styles.albumIcon}
       />
-      <Text style={styles.albumName}>{album}</Text>
+      <Text style={styles.albumName}>{album.title}</Text>
     </TouchableOpacity>
   );
 };
@@ -63,7 +71,7 @@ const styles = StyleSheet.create({
   albumName: {
     fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 8
+    marginLeft: 8,
   },
 });
 

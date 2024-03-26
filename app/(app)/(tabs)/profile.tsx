@@ -52,6 +52,10 @@ function Profile() {
         <Button style={styles.buttonParams} onPress={() => { }}>
           <Text style={styles.buttonTitleParams}>Confirm</Text>
         </Button>
+        <Text style={styles.titleParams}>Disconnect:</Text>
+        <Button style={styles.buttonParams} onPress={() => { }} variant="destructive">
+          <Text style={styles.buttonTitleParams}>Disconnect</Text>
+        </Button>
       </View>
     </View>
   );
@@ -72,12 +76,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   listParams: {
-    marginTop: 50,
     marginBottom: 16,
     width: "90%",
     alignSelf: 'center',
   },
   titleParams: {
+    marginTop: 40,
     fontSize: 20,
   },
   inputParams: {

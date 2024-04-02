@@ -15,6 +15,14 @@ export default function AuthLayout() {
           headerBackTitleVisible: false,
         }}
       />
+      <Stack.Screen
+        name="sign-up"
+        options={{
+          title: "Sign Up",
+          headerShown: false,
+          headerBackTitleVisible: false,
+        }}
+      />
     </Stack>
   );
 }

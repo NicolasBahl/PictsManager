@@ -1,39 +1,21 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Alert, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
-import { View, Text, ScrollView } from "@/components/Themed";
+import { Text, ScrollView, View } from "@/components/Themed";
 import { Input } from "@/components/ui/input";
-import { useSignInMutation } from "@/graphql/generated/graphql";
-import { useAuth } from "@/providers/AuthProvider";
-import { useRouter } from "expo-router";
+import { StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useRouter } from "expo-router";
+import Colors from "@/constants/Colors";
+import { useColorScheme } from "@/components/useColorScheme";
 
-export default function SignIn() {
-  //TODO: Faire les degradés
+export default function SignUp() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const authContext = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const passwordRef = useRef(null);
-
-  const [signIn, { loading }] = useSignInMutation({
-    onCompleted: async (data) => {
-      if (data?.signIn?.token) {
-        authContext?.signIn(data?.signIn);
-      }
-    },
-    onError: (e) => {
-      console.log(e);
-      if (e?.message?.includes("invalid")) {
-        Alert?.alert("Erreur", "Email ou mot de passe incorrect");
-      } else {
-        Alert?.alert("Erreur", "Une erreur est survenue, veuillez réessayer");
-      }
-    },
-  });
+  const confirmPasswordRef = useRef(null);
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -59,7 +41,7 @@ export default function SignIn() {
           />
           <Text>PictsManager</Text>
         </View>
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.title}>Create Account</Text>
         <View style={styles.inputContainer}>
           <Input
             value={email}
@@ -81,29 +63,49 @@ export default function SignIn() {
           <Input
             value={password}
             label="Password"
+            style={styles.input}
             onChangeText={setPassword}
             placeholder="Enter Password"
             secureTextEntry
-            autoComplete="password"
+            autoComplete="password-new"
+            textContentType="newPassword"
             autoCapitalize="none"
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
             darkBackgroundColor={Colors.dark.lightBackground}
             lightBackgroundColor={Colors.light.lightBackground}
+            returnKeyType="next"
             ref={passwordRef}
+            onSubmitEditing={() => (confirmPasswordRef.current as any)?.focus()}
+          />
+          <Input
+            value={confirmPassword}
+            label="Confirm Password"
+            style={styles.input}
+            onChangeText={setConfirmPassword}
+            placeholder="Confirm Password"
+            secureTextEntry
+            autoComplete="password"
+            textContentType="newPassword"
+            autoCapitalize="none"
+            autoCorrect={false}
+            darkColor={Colors.dark.text}
+            lightColor={Colors.light.text}
+            darkBackgroundColor={Colors.dark.lightBackground}
+            lightBackgroundColor={Colors.light.lightBackground}
             returnKeyType="done"
-            onSubmitEditing={async () => await signIn({ variables: { email: email, password: password } })}
+            ref={confirmPasswordRef}
           />
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={async () => await signIn({ variables: { email: email, password: password } })}>
-            <Text style={styles.buttonText}>LOG IN</Text>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>SIGN UP</Text>
           </TouchableOpacity>
           <View style={styles.changeAuthContainer}>
-            <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Don't have an account?</Text>
-            <TouchableOpacity onPress={() => router.push("/sign-up")}>
-              <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Sign Up</Text>
+            <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Already have an account?</Text>
+            <TouchableOpacity onPress={() => router.push("/sign-in")}>
+              <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Log In</Text>
             </TouchableOpacity>
           </View>
         </View>

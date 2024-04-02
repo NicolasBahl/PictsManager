@@ -28,7 +28,7 @@ export default function AuthSelection() {
         <TouchableOpacity style={[styles.button, styles.buttonLogin]} onPress={() => router.push("/sign-in")}>
           <Text style={styles.buttonText}>LOG IN</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.buttonSignup]}>
+        <TouchableOpacity style={[styles.button, styles.buttonSignup]} onPress={() => router.push("/sign-up")}>
           <Text style={styles.buttonText}>SIGN UP</Text>
         </TouchableOpacity>
       </View>

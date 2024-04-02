@@ -11,7 +11,7 @@ export default function AuthLayout() {
         name="sign-in"
         options={{
           title: "Sign In",
-          headerShown: true,
+          headerShown: false,
           headerBackTitleVisible: false,
         }}
       />

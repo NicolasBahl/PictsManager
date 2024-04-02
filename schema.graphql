@@ -8,6 +8,12 @@ type Album {
   updatedAt: DateTime!
 }
 
+input AlbumOrderBy {
+  size: OrderBy
+  title: OrderBy
+  updatedAt: OrderBy
+}
+
 enum AlbumPermission {
   CAN_READ
   CAN_WRITE
@@ -41,12 +47,18 @@ type Mutation {
   createAlbum(title: String!): Album!
   createPhoto(data: CreatePhotoInput!): Photo!
   deleteAlbum(id: ID!): Album!
+  deletePhoto(id: String!): Photo!
   deleteUser(id: ID!): User!
   removeAccessUser(id: ID!, userEmail: String!): Album!
   signIn(email: String!, password: String!): AuthPayload!
   signUp(email: String!, password: String!): AuthPayload!
   updateAlbum(id: ID!, permission: AlbumPermission, title: String): Album!
   updateTag(id: ID!, tags: [String!]!): Photo!
+}
+
+enum OrderBy {
+  Asc
+  Desc
 }
 
 type Photo {
@@ -57,11 +69,17 @@ type Photo {
   tags: [Tag!]!
 }
 
+input PhotoOrderBy {
+  createdAt: OrderBy
+}
+
 type Query {
   album(id: ID!): Album
-  albums(name: String!): [Album!]!
+  albums(orderBy: AlbumOrderBy, skip: Int = 0, take: Int = 10, where: WhereAlbumInput): [Album!]!
+  albumsCount(where: WhereAlbumInput): Int!
   me: User
-  photos(skip: Int = 0, take: Int = 10, where: WherePhotoInput!): [Photo!]!
+  photos(orderBy: PhotoOrderBy, skip: Int = 0, take: Int = 10, where: WherePhotoInput): [Photo!]!
+  photosCount(where: WherePhotoInput): Int!
 }
 
 type Tag {
@@ -84,6 +102,11 @@ type User {
 enum UserRole {
   ADMIN
   USER
+}
+
+input WhereAlbumInput {
+  isMyAlbum: Boolean
+  title: String
 }
 
 input WherePhotoInput {

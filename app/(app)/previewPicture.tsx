@@ -17,6 +17,7 @@ import { useEffect, useState, useRef } from "react";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import {
+  Album,
   useAddPhotoMutation,
   useCurrentAlbumsQuery,
 } from "@/graphql/generated/graphql";
@@ -88,7 +89,7 @@ export default function ModalScreen() {
     Image.getSize(uri.toString(), (width, height) => {
       setImageRatio(width / height);
     });
-  }, [uri, metadata]);
+  }, [uri, metadata,selectedAlbum]);
 
   return (
     <KeyboardAvoidingView
@@ -137,8 +138,8 @@ export default function ModalScreen() {
           <>
             <Text style={styles.title}>Album</Text>
             <AlbumSelector
-              albums={albumData?.me?.albums}
-              selectedAlbum={selectedAlbum}
+              albums={albumData?.me?.albums ?? []}
+              selectedAlbum={albumData?.me.albums.find((album) => album.id === selectedAlbum) ?? albumData?.me.albums[0]}
               onAlbumSelect={setSelectedAlbum}
             />
           </>

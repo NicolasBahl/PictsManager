@@ -1,0 +1,13 @@
+query Photos($where: WherePhotoInput) {
+    photos(where: $where) {
+        id
+        media {
+            id
+            url
+        }
+        metadata
+        tags {
+            name
+        }
+    }
+}

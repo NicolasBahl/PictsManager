@@ -68,6 +68,7 @@ export type Mutation = {
   createAlbum: Album;
   createPhoto: Photo;
   deleteAlbum: Album;
+  deletePhoto: Photo;
   deleteUser: User;
   removeAccessUser: Album;
   signIn: AuthPayload;
@@ -95,6 +96,11 @@ export type MutationCreatePhotoArgs = {
 
 export type MutationDeleteAlbumArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePhotoArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -147,6 +153,10 @@ export type Photo = {
   tags: Array<Tag>;
 };
 
+export type PhotoOrderBy = {
+  createdAt?: InputMaybe<OrderBy>;
+};
+
 export type Query = {
   __typename?: 'Query';
   album?: Maybe<Album>;
@@ -154,6 +164,7 @@ export type Query = {
   albumsCount: Scalars['Int']['output'];
   me?: Maybe<User>;
   photos: Array<Photo>;
+  photosCount: Scalars['Int']['output'];
 };
 
 
@@ -176,8 +187,14 @@ export type QueryAlbumsCountArgs = {
 
 
 export type QueryPhotosArgs = {
+  orderBy?: InputMaybe<PhotoOrderBy>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<WherePhotoInput>;
+};
+
+
+export type QueryPhotosCountArgs = {
   where?: InputMaybe<WherePhotoInput>;
 };
 
@@ -241,6 +258,27 @@ export type CurrentAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CurrentAlbumsQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: string, albums: Array<{ __typename?: 'Album', id: string, title: string }> } | null };
+
+export type DeleteAlbumMutationVariables = Exact<{
+  albumId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAlbumMutation = { __typename?: 'Mutation', deleteAlbum: { __typename?: 'Album', id: string } };
+
+export type DeletePhotoMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type DeletePhotoMutation = { __typename?: 'Mutation', deletePhoto: { __typename?: 'Photo', id: string } };
+
+export type PhotosQueryVariables = Exact<{
+  where?: InputMaybe<WherePhotoInput>;
+}>;
+
+
+export type PhotosQuery = { __typename?: 'Query', photos: Array<{ __typename?: 'Photo', id: string, metadata: any, media: { __typename?: 'Media', id: string, url?: string | null }, tags: Array<{ __typename?: 'Tag', name: string }> }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -402,6 +440,120 @@ export type CurrentAlbumsQueryHookResult = ReturnType<typeof useCurrentAlbumsQue
 export type CurrentAlbumsLazyQueryHookResult = ReturnType<typeof useCurrentAlbumsLazyQuery>;
 export type CurrentAlbumsSuspenseQueryHookResult = ReturnType<typeof useCurrentAlbumsSuspenseQuery>;
 export type CurrentAlbumsQueryResult = Apollo.QueryResult<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>;
+export const DeleteAlbumDocument = gql`
+    mutation DeleteAlbum($albumId: ID!) {
+  deleteAlbum(id: $albumId) {
+    id
+  }
+}
+    `;
+export type DeleteAlbumMutationFn = Apollo.MutationFunction<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
+
+/**
+ * __useDeleteAlbumMutation__
+ *
+ * To run a mutation, you first call `useDeleteAlbumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAlbumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAlbumMutation, { data, loading, error }] = useDeleteAlbumMutation({
+ *   variables: {
+ *      albumId: // value for 'albumId'
+ *   },
+ * });
+ */
+export function useDeleteAlbumMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAlbumMutation, DeleteAlbumMutationVariables>(DeleteAlbumDocument, options);
+      }
+export type DeleteAlbumMutationHookResult = ReturnType<typeof useDeleteAlbumMutation>;
+export type DeleteAlbumMutationResult = Apollo.MutationResult<DeleteAlbumMutation>;
+export type DeleteAlbumMutationOptions = Apollo.BaseMutationOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
+export const DeletePhotoDocument = gql`
+    mutation DeletePhoto($id: String!) {
+  deletePhoto(id: $id) {
+    id
+  }
+}
+    `;
+export type DeletePhotoMutationFn = Apollo.MutationFunction<DeletePhotoMutation, DeletePhotoMutationVariables>;
+
+/**
+ * __useDeletePhotoMutation__
+ *
+ * To run a mutation, you first call `useDeletePhotoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePhotoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePhotoMutation, { data, loading, error }] = useDeletePhotoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePhotoMutation(baseOptions?: Apollo.MutationHookOptions<DeletePhotoMutation, DeletePhotoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePhotoMutation, DeletePhotoMutationVariables>(DeletePhotoDocument, options);
+      }
+export type DeletePhotoMutationHookResult = ReturnType<typeof useDeletePhotoMutation>;
+export type DeletePhotoMutationResult = Apollo.MutationResult<DeletePhotoMutation>;
+export type DeletePhotoMutationOptions = Apollo.BaseMutationOptions<DeletePhotoMutation, DeletePhotoMutationVariables>;
+export const PhotosDocument = gql`
+    query Photos($where: WherePhotoInput) {
+  photos(where: $where) {
+    id
+    media {
+      id
+      url
+    }
+    metadata
+    tags {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __usePhotosQuery__
+ *
+ * To run a query within a React component, call `usePhotosQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePhotosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePhotosQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function usePhotosQuery(baseOptions?: Apollo.QueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+      }
+export function usePhotosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+        }
+export function usePhotosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+        }
+export type PhotosQueryHookResult = ReturnType<typeof usePhotosQuery>;
+export type PhotosLazyQueryHookResult = ReturnType<typeof usePhotosLazyQuery>;
+export type PhotosSuspenseQueryHookResult = ReturnType<typeof usePhotosSuspenseQuery>;
+export type PhotosQueryResult = Apollo.QueryResult<PhotosQuery, PhotosQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

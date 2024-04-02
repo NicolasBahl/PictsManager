@@ -1,14 +1,20 @@
 import React, { useRef, useState } from "react";
-import {ActivityIndicator, StyleSheet} from "react-native";
+import { ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Text, ScrollView, View } from "@/components/Themed";
+import { ScrollView, Text, View } from "@/components/Themed";
 import SearchBar from "@/components/SearchBar";
 import AlbumItem from "@/components/AlbumItem";
 import { ContextMenuButton } from "react-native-ios-context-menu";
 import { router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
-import { Album, useAlbumsQuery } from "@/graphql/generated/graphql";
+import {
+  Album,
+  OrderBy,
+  useAlbumsQuery,
+  useDeleteAlbumMutation,
+} from "@/graphql/generated/graphql";
+import { setName } from "@expo/config-plugins/build/ios/Name";
 
 export default function Albums() {
   const searchBarRef = useRef(null);
@@ -16,14 +22,24 @@ export default function Albums() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const [searchText, setSearchText] = useState<string | undefined>(undefined);
+  const [size, setSize] = useState<OrderBy>(OrderBy.Desc);
+  const [updatedAt, setUpdateAt] = useState(OrderBy.Desc);
+  const [title, setTitle] = useState(OrderBy.Desc);
 
   const { data: albums, loading } = useAlbumsQuery({
     variables: {
       where: {
         title: searchText ?? undefined,
       },
+      orderBy: {
+        size,
+        updatedAt,
+        title,
+      },
     },
   });
+
+  const [deleteAlbum] = useDeleteAlbumMutation();
 
   const [selectedAlbums, setSelectedAlbums] = useState<
     Pick<Album, "title" | "id">[]
@@ -115,7 +131,7 @@ export default function Albums() {
                       menuItems: [
                         {
                           actionKey: "sort-name",
-                          actionTitle: "Name",
+                          actionTitle: `Name ${title}`,
                           icon: {
                             type: "IMAGE_SYSTEM",
                             imageValue: {
@@ -125,7 +141,7 @@ export default function Albums() {
                         },
                         {
                           actionKey: "sort-date",
-                          actionTitle: "Date",
+                          actionTitle: `Date ${updatedAt}`,
                           icon: {
                             type: "IMAGE_SYSTEM",
                             imageValue: {
@@ -135,7 +151,7 @@ export default function Albums() {
                         },
                         {
                           actionKey: "sort-size",
-                          actionTitle: "Size",
+                          actionTitle: `Size ${size}`,
                           icon: {
                             type: "IMAGE_SYSTEM",
                             imageValue: {
@@ -155,13 +171,32 @@ export default function Albums() {
               setIsSelectMode(false);
               setSelectedAlbums([]);
             } else if (nativeEvent.actionKey === "selectAll") {
+              // Alert.alert(JSON.stringify(albumId));
               if (selectedAlbums.length === albums?.albums.length) {
                 setSelectedAlbums([]);
               } else {
                 setSelectedAlbums(albums?.albums || []);
               }
             } else if (nativeEvent.actionKey === "delete") {
+              if (selectedAlbums && setSelectedAlbums?.length > 0) {
+                selectedAlbums.map((album) => {
+                  deleteAlbum({
+                    variables: {
+                      albumId: album.id,
+                    },
+                    refetchQueries: ["Albums"],
+                  });
+                });
+              }
               setSelectedAlbums([]);
+            } else if (nativeEvent.actionKey === "sort-name") {
+              setTitle(title === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc);
+            } else if (nativeEvent.actionKey === "sort-size") {
+              setSize(size === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc);
+            } else if (nativeEvent.actionKey === "sort-date") {
+              setUpdateAt(
+                updatedAt === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc,
+              );
             }
           }}
         >
@@ -179,7 +214,13 @@ export default function Albums() {
             placeholder="Search albums"
             onChangeText={(text) => setSearchText(text)}
           />
-          {loading && <ActivityIndicator style={styles.loader} size={"large"} color={"#08aaff"}/>}
+          {loading && (
+            <ActivityIndicator
+              style={styles.loader}
+              size={"large"}
+              color={"#08aaff"}
+            />
+          )}
         </View>
         <View style={styles.albumContainer}>
           {albums &&
@@ -246,6 +287,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   loader: {
-    marginVertical: 20
-  }
+    marginVertical: 20,
+  },
 });

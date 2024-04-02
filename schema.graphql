@@ -47,6 +47,7 @@ type Mutation {
   createAlbum(title: String!): Album!
   createPhoto(data: CreatePhotoInput!): Photo!
   deleteAlbum(id: ID!): Album!
+  deletePhoto(id: String!): Photo!
   deleteUser(id: ID!): User!
   removeAccessUser(id: ID!, userEmail: String!): Album!
   signIn(email: String!, password: String!): AuthPayload!
@@ -68,12 +69,17 @@ type Photo {
   tags: [Tag!]!
 }
 
+input PhotoOrderBy {
+  createdAt: OrderBy
+}
+
 type Query {
   album(id: ID!): Album
   albums(orderBy: AlbumOrderBy, skip: Int = 0, take: Int = 10, where: WhereAlbumInput): [Album!]!
   albumsCount(where: WhereAlbumInput): Int!
   me: User
-  photos(skip: Int = 0, take: Int = 10, where: WherePhotoInput): [Photo!]!
+  photos(orderBy: PhotoOrderBy, skip: Int = 0, take: Int = 10, where: WherePhotoInput): [Photo!]!
+  photosCount(where: WherePhotoInput): Int!
 }
 
 type Tag {

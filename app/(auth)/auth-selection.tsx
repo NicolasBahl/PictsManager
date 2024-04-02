@@ -1,25 +1,37 @@
 import React from "react";
-import { View, Button, Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text } from "@/components/Themed";
 import { useRouter } from "expo-router";
-import { useAuth } from "@/providers/AuthProvider";
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function AuthSelection() {
   const router = useRouter();
-  const { byPassSignIn } = useAuth();
+
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   return (
     <View style={styles.container}>
-      <Image
-        style={styles.logo}
-        source={require("@/assets/images/adaptive-icon.png")}
-      />
-      <Button title="Login" onPress={() => router.push("/sign-in")} />
-      <View style={{ height: 20 }} />
-      <Button
-        title="Register"
-        onPress={() => alert("Register button pressed")}
-      />
-      <View style={{ height: 20 }} />
-      <Button title="Bypass Login" onPress={() => byPassSignIn()} />
+      <View style={styles.logoContainer}>
+        <Image
+          style={[styles.logo, {
+            tintColor: isDarkMode ? Colors.dark.text : Colors.light.text
+          }]}
+          source={require("@/assets/images/scribble.png")}
+          resizeMode="contain"
+        />
+        <Text>PictsManager</Text>
+      </View>
+      <Text style={styles.welcome}>Welcome!</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={[styles.button, styles.buttonLogin]} onPress={() => router.push("/sign-in")}>
+          <Text style={styles.buttonText}>LOG IN</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.buttonSignup]}>
+          <Text style={styles.buttonText}>SIGN UP</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -27,13 +39,47 @@ export default function AuthSelection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     padding: 16,
   },
-  logo: {
-    width: 128,
-    height: 128,
+  logoContainer: {
+    marginTop: 100,
+    width: "100%",
     alignSelf: "center",
-    marginBottom: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
+  logo: {
+    width: 78,
+    height: 78,
+  },
+  welcome: {
+    marginTop: 80,
+    fontSize: 48,
+    fontWeight: "bold",
+    alignSelf: "center",
+  },
+  buttonContainer: {
+    marginTop: 150,
+    alignSelf: "center",
+  },
+  button: {
+    height: 52,
+    width: 208,
+    borderRadius: 52,
+    marginBottom: 8,
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "white",
+    textAlign: "center",
+  },
+  buttonLogin: {
+    backgroundColor: "#9ED8DB",
+  },
+  buttonSignup: {
+    borderColor: "#9ED8DB",
+    borderWidth: 3,
+  }
 });

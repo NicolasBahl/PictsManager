@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { StyleSheet, Alert, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { View, Text, ScrollView } from "@/components/Themed";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const authContext = useAuth();
+
+  const passwordRef = useRef(null);
 
   const [signIn, { loading }] = useSignInMutation({
     onCompleted: async (data) => {
@@ -72,6 +74,8 @@ export default function SignIn() {
             lightColor={Colors.light.text}
             darkBackgroundColor={Colors.dark.lightBackground}
             lightBackgroundColor={Colors.light.lightBackground}
+            returnKeyType="next"
+            onSubmitEditing={() => (passwordRef.current as any)?.focus()}
           />
           <Input
             value={password}
@@ -86,6 +90,9 @@ export default function SignIn() {
             lightColor={Colors.light.text}
             darkBackgroundColor={Colors.dark.lightBackground}
             lightBackgroundColor={Colors.light.lightBackground}
+            ref={passwordRef}
+            returnKeyType="done"
+            onSubmitEditing={async () => await signIn({ variables: { email: email, password: password } })}
           />
         </View>
         <View style={styles.buttonContainer}>

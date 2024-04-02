@@ -89,7 +89,7 @@ export default function SignIn() {
           />
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={async () => await signIn({ variables: { email: email, password: password } })}>
             <Text style={styles.buttonText}>LOG IN</Text>
           </TouchableOpacity>
         </View>

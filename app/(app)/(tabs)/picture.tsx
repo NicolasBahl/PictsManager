@@ -1,6 +1,5 @@
-// TODO: Ajouter le crop de l'image pour le format
-// TODO: Faire la résolution de l'image
 // TODO: Remplacer le fond noir derrière la photo par autre chose
+// TODO: Rajouter animation entre le changement de ratio
 
 import {
   StyleSheet,
@@ -43,6 +42,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import type { PhotoFile } from "react-native-vision-camera/src/PhotoFile";
+import ImageEditor from '@react-native-community/image-editor';
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -96,14 +96,48 @@ export default function Picture() {
 
   const takePicture = async () => {
     if (camera.current === null) return;
-    else {
-      const photo = await camera.current.takePhoto({
-        enableShutterSound: true,
-        flash: flash,
-      });
-      console.log(`Photo dimensions: ${photo.width}x${photo.height}`);
-      setPhoto(photo);
+    const photo = await camera.current.takePhoto({
+      enableShutterSound: true,
+      flash: flash,
+    });
+    photo.path = "file://" + photo.path;
+
+    let width = photo.width;
+    let height = photo.height;
+    let offsetX = 0;
+    let offsetY = 0;
+    let temp = 0;
+
+    switch (ratio) {
+      case '16:9':
+        width = height * 9 / 16;
+        offsetX = (photo.width - width) / 2;
+        break;
+      case '4:3':
+        temp = height;
+        height = width;
+        width = temp;
+        break;
+      case '1:1':
+        width = height;
+        offsetY = (photo.width - width) / 2;
+        break;
     }
+
+    console.log(width, height, offsetX, offsetY);
+
+
+    let croppedPhotoUri = await ImageEditor.cropImage(photo.path, {
+      offset: { x: offsetX, y: offsetY },
+      size: {
+        width: width,
+        height: height,
+      }
+    });
+
+    const croppedPhoto: PhotoFile = { ...photo, path: croppedPhotoUri.path };
+
+    setPhoto(croppedPhoto);
   };
 
   const cancelPicture = () => {
@@ -237,6 +271,7 @@ const styles = StyleSheet.create({
   },
   photoPreview: {
     flex: 1,
+    resizeMode: "contain",
   },
   photoShoot: {
     position: "relative",

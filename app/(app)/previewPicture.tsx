@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     paddingVertical: 40,
+    height: "100%",
   },
   image: {
     marginTop: 20,

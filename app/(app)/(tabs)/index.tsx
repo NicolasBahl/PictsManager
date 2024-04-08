@@ -14,7 +14,6 @@ import {
   useAlbumsQuery,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
-import { setName } from "@expo/config-plugins/build/ios/Name";
 
 export default function Albums() {
   const searchBarRef = useRef(null);
@@ -223,7 +222,7 @@ export default function Albums() {
           )}
         </View>
         <View style={styles.albumContainer}>
-          {albums &&
+          {albums?.albums && albums?.albums.length > 0 ? (
             albums?.albums.map((album) => (
               <View key={album.id} style={styles.album}>
                 {isSelectMode && (
@@ -248,7 +247,20 @@ export default function Albums() {
                   onSelect={() => handleSelect(album as Album)}
                 />
               </View>
-            ))}
+            ))
+          ) : (
+            <View style={{ alignItems: "center", marginTop: 20 }}>
+              <Text
+                style={{
+                  color: isDarkMode ? Colors.dark.text : Colors.light.text,
+                  fontWeight: searchText ? "normal" : "bold",
+                  fontSize: searchText ? 14 : 16,
+                }}
+              >
+                {searchText ? "No albums found" : "You have no albums yet 😢"}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>

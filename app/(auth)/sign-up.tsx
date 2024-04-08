@@ -15,18 +15,44 @@ import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useSignUpMutation } from "@/graphql/generated/graphql";
 import { useAuth } from "@/providers/AuthProvider";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Define Zod schema for form validation
+const schema = z
+  .object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+type SignUpForm = z.infer<typeof schema>;
+
+const defaultValues = {
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
 
 export default function SignUp() {
   const router = useRouter();
   const [signUp] = useSignUpMutation();
   const { signIn } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const passwordRef = useRef(null);
-  const confirmPasswordRef = useRef(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignUpForm>({
+    resolver: zodResolver(schema),
+    defaultValues,
+    mode: "onBlur",
+  });
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
@@ -37,22 +63,18 @@ export default function SignUp() {
     ? ["#467599", "#9ED8DB"]
     : ["#b0ddff", "#e0eced"];
 
-  const handleSignUp = async () => {
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
+  // Handle form submission
+  const onSubmit = async (data: SignUpForm) => {
     try {
-      const { data } = await signUp({
+      const { data: formData } = await signUp({
         variables: {
-          email,
-          password,
+          email: data.email,
+          password: data.password,
         },
       });
-      if (data?.signUp?.token) {
+      if (formData?.signUp?.token) {
         await signIn({
-          token: data.signUp.token,
+          token: formData.signUp.token,
         });
       }
     } catch (error: any) {
@@ -113,67 +135,110 @@ export default function SignUp() {
           darkColor="transparent"
           lightColor="transparent"
         >
-          <Input
-            value={email}
-            label="Email"
-            style={styles.input}
-            onChangeText={setEmail}
-            placeholder="Enter Email"
-            keyboardType="email-address"
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect={false}
-            darkColor={Colors.dark.text}
-            lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.background}
-            lightBackgroundColor={Colors.light.background}
-            returnKeyType="next"
-            onSubmitEditing={() => (passwordRef.current as any)?.focus()}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <Input
+                label="Email"
+                value={field.value}
+                onChangeText={field.onChange}
+                style={styles.input}
+                placeholder="Enter Email"
+                keyboardType="email-address"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect={false}
+                darkColor={Colors.dark.text}
+                lightColor={Colors.light.text}
+                darkBackgroundColor={Colors.dark.background}
+                lightBackgroundColor={Colors.light.background}
+              />
+            )}
           />
-          <Input
-            value={password}
-            label="Password"
-            style={styles.input}
-            onChangeText={setPassword}
-            placeholder="Enter Password"
-            secureTextEntry
-            autoComplete="password-new"
-            textContentType="newPassword"
-            autoCapitalize="none"
-            autoCorrect={false}
-            darkColor={Colors.dark.text}
-            lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.background}
-            lightBackgroundColor={Colors.light.background}
-            returnKeyType="next"
-            ref={passwordRef}
-            onSubmitEditing={() => (confirmPasswordRef.current as any)?.focus()}
+          {errors.email && (
+            <Text
+              style={{
+                color: "red",
+                fontSize: 12,
+                marginBottom: 12,
+              }}
+            >
+              {errors.email.message}
+            </Text>
+          )}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field }) => (
+              <Input
+                value={field.value}
+                onChangeText={field.onChange}
+                label="Password"
+                style={styles.input}
+                placeholder="Enter Password"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                darkColor={Colors.dark.text}
+                lightColor={Colors.light.text}
+                darkBackgroundColor={Colors.dark.background}
+                lightBackgroundColor={Colors.light.background}
+              />
+            )}
           />
-          <Input
-            value={confirmPassword}
-            label="Confirm Password"
-            style={styles.input}
-            onChangeText={setConfirmPassword}
-            placeholder="Confirm Password"
-            secureTextEntry
-            autoComplete="password"
-            textContentType="newPassword"
-            autoCapitalize="none"
-            autoCorrect={false}
-            darkColor={Colors.dark.text}
-            lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.background}
-            lightBackgroundColor={Colors.light.background}
-            returnKeyType="done"
-            ref={confirmPasswordRef}
+          {errors.password && (
+            <Text
+              style={{
+                color: "red",
+                fontSize: 12,
+                marginBottom: 12,
+              }}
+            >
+              {errors.password.message}
+            </Text>
+          )}
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <Input
+                value={field.value}
+                onChangeText={field.onChange}
+                label="Confirm Password"
+                style={styles.input}
+                placeholder="Confirm Password"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                darkColor={Colors.dark.text}
+                lightColor={Colors.light.text}
+                darkBackgroundColor={Colors.dark.background}
+                lightBackgroundColor={Colors.light.background}
+              />
+            )}
           />
+          {errors.confirmPassword && (
+            <Text
+              style={{
+                color: "red",
+                fontSize: 12,
+                marginBottom: 12,
+              }}
+            >
+              {errors.confirmPassword.message}
+            </Text>
+          )}
         </View>
         <View
           style={styles.buttonContainer}
           darkColor="transparent"
           lightColor="transparent"
         >
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSubmit(onSubmit)}
+          >
             <LinearGradient
               colors={gradientColorsButton}
               style={styles.buttonGradient}

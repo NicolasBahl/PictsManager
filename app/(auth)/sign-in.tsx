@@ -37,8 +37,8 @@ export default function SignIn() {
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  const gradientColors = colorScheme === 'dark' ? ['#010101', '#17202b'] : ['#FEFEFE', '#dce6f0'];
-  const gradientColorsButton = colorScheme === 'dark' ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
+  const gradientColors = isDarkMode ? ['#010101', '#17202b'] : ['#FEFEFE', '#dce6f0'];
+  const gradientColorsButton = isDarkMode ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
 
   return (
     <KeyboardAvoidingView

@@ -6,11 +6,11 @@ import { useSignInMutation } from "@/graphql/generated/graphql";
 import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import LinearGradient from 'react-native-linear-gradient';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export default function SignIn() {
-  //TODO: Faire les degradés
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -37,19 +37,22 @@ export default function SignIn() {
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+  const gradientColors = colorScheme === 'dark' ? ['#010101', '#17202b'] : ['#FEFEFE', '#dce6f0'];
+  const gradientColorsButton = colorScheme === 'dark' ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView style={styles.container} bounces={false}>
-        <View style={styles.header}>
+      <LinearGradient colors={gradientColors} style={styles.gradient} start={{ x: 0.5, y: 0.4 }} end={{ x: 0.5, y: 0 }} />
+      <ScrollView style={styles.container} bounces={false} darkColor="transparent" lightColor="transparent">
+        <View style={styles.header} darkColor="transparent" lightColor="transparent">
           <TouchableOpacity onPress={() => router.back()} style={styles.back}>
             <Ionicons name="arrow-back" size={30} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
           </TouchableOpacity>
         </View>
-        <View style={styles.logoContainer}>
+        <View style={styles.logoContainer} darkColor="transparent" lightColor="transparent">
           <Image
             style={[styles.logo, {
               tintColor: isDarkMode ? Colors.dark.text : Colors.light.text
@@ -60,7 +63,7 @@ export default function SignIn() {
           <Text>PictsManager</Text>
         </View>
         <Text style={styles.title}>Login</Text>
-        <View style={styles.inputContainer}>
+        <View style={styles.inputContainer} darkColor="transparent" lightColor="transparent">
           <Input
             value={email}
             label="Email"
@@ -73,8 +76,8 @@ export default function SignIn() {
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.lightBackground}
-            lightBackgroundColor={Colors.light.lightBackground}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             returnKeyType="next"
             onSubmitEditing={() => (passwordRef.current as any)?.focus()}
           />
@@ -89,18 +92,20 @@ export default function SignIn() {
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.lightBackground}
-            lightBackgroundColor={Colors.light.lightBackground}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             ref={passwordRef}
             returnKeyType="done"
             onSubmitEditing={async () => await signIn({ variables: { email: email, password: password } })}
           />
         </View>
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer} darkColor="transparent" lightColor="transparent">
           <TouchableOpacity style={styles.button} onPress={async () => await signIn({ variables: { email: email, password: password } })}>
-            <Text style={styles.buttonText}>LOG IN</Text>
+            <LinearGradient colors={gradientColorsButton} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>LOG IN</Text>
+            </LinearGradient>
           </TouchableOpacity>
-          <View style={styles.changeAuthContainer}>
+          <View style={styles.changeAuthContainer} darkColor="transparent" lightColor="transparent">
             <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Don't have an account?</Text>
             <TouchableOpacity onPress={() => router.push("/sign-up")}>
               <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Sign Up</Text>
@@ -115,6 +120,11 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  gradient: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   header: {
     position: "absolute",
@@ -166,10 +176,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "#9ED8DB",
   },
+  buttonGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 52
+  },
   buttonText: {
     fontSize: 24,
     fontWeight: "600",
-    color: "white",
     textAlign: "center",
   },
   changeAuthContainer: {

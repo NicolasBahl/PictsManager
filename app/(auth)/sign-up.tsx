@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import LinearGradient from 'react-native-linear-gradient';
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 
@@ -19,19 +20,22 @@ export default function SignUp() {
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+  const gradientColors = colorScheme === 'dark' ? ['#010101', '#17202b'] : ['#FEFEFE', '#c1cbd6'];
+  const gradientColorsButton = colorScheme === 'dark' ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView style={styles.container} bounces={false}>
-        <View style={styles.header}>
+      <LinearGradient colors={gradientColors} style={styles.gradient} start={{ x: 0.5, y: 0.4 }} end={{ x: 0.5, y: 0 }} />
+      <ScrollView style={styles.container} bounces={false} darkColor="transparent" lightColor="transparent">
+        <View style={styles.header} darkColor="transparent" lightColor="transparent">
           <TouchableOpacity onPress={() => router.back()} style={styles.back}>
             <Ionicons name="arrow-back" size={30} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
           </TouchableOpacity>
         </View>
-        <View style={styles.logoContainer}>
+        <View style={styles.logoContainer} darkColor="transparent" lightColor="transparent">
           <Image
             style={[styles.logo, {
               tintColor: isDarkMode ? Colors.dark.text : Colors.light.text
@@ -42,7 +46,7 @@ export default function SignUp() {
           <Text>PictsManager</Text>
         </View>
         <Text style={styles.title}>Create Account</Text>
-        <View style={styles.inputContainer}>
+        <View style={styles.inputContainer} darkColor="transparent" lightColor="transparent">
           <Input
             value={email}
             label="Email"
@@ -55,8 +59,8 @@ export default function SignUp() {
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.lightBackground}
-            lightBackgroundColor={Colors.light.lightBackground}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             returnKeyType="next"
             onSubmitEditing={() => (passwordRef.current as any)?.focus()}
           />
@@ -73,8 +77,8 @@ export default function SignUp() {
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.lightBackground}
-            lightBackgroundColor={Colors.light.lightBackground}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             returnKeyType="next"
             ref={passwordRef}
             onSubmitEditing={() => (confirmPasswordRef.current as any)?.focus()}
@@ -92,17 +96,19 @@ export default function SignUp() {
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
-            darkBackgroundColor={Colors.dark.lightBackground}
-            lightBackgroundColor={Colors.light.lightBackground}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             returnKeyType="done"
             ref={confirmPasswordRef}
           />
         </View>
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer} darkColor="transparent" lightColor="transparent">
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>SIGN UP</Text>
+            <LinearGradient colors={gradientColorsButton} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>SIGN UP</Text>
+            </LinearGradient>
           </TouchableOpacity>
-          <View style={styles.changeAuthContainer}>
+          <View style={styles.changeAuthContainer} darkColor="transparent" lightColor="transparent">
             <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Already have an account?</Text>
             <TouchableOpacity onPress={() => router.push("/sign-in")}>
               <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Log In</Text>
@@ -117,6 +123,11 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  gradient: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   header: {
     position: "absolute",
@@ -168,10 +179,15 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "#9ED8DB",
   },
+  buttonGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 52
+  },
   buttonText: {
     fontSize: 24,
     fontWeight: "600",
-    color: "white",
     textAlign: "center",
   },
   changeAuthContainer: {

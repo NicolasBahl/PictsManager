@@ -1,3 +1,7 @@
+// TODO: Ajouter le crop de l'image pour le format
+// TODO: Faire la résolution de l'image
+// TODO: Remplacer le fond noir derrière la photo par autre chose
+
 import {
   StyleSheet,
   Text,
@@ -125,6 +129,19 @@ export default function Picture() {
   }, [hasPermission]);
 
   const screen = Dimensions.get("screen");
+  let width = screen.width;
+  let height = width;
+  let marginTop = 0;
+
+  if (ratio === '16:9') {
+    height = width * 16 / 9;
+  } else if (ratio === '4:3') {
+    height = width * 4 / 3;
+  } else if (ratio === '1:1') {
+    height = width;
+  }
+  marginTop = (screen.height - height) / 4.5;
+
   const format = useCameraFormat(device, [
     { photoResolution: 'max' },
     { videoResolution: 'max' },
@@ -166,6 +183,7 @@ export default function Picture() {
         styles.container,
         {
           flex: 1,
+          backgroundColor: "black",
         },
       ]}
     >
@@ -176,12 +194,12 @@ export default function Picture() {
           photo={true}
           ref={camera}
           zoom={zoom}
-          style={[StyleSheet.absoluteFillObject]}
+          style={[{ width: width, height: height, marginTop: marginTop }, styles.photoShoot]}
           device={device}
           isActive={true}
         />
       </GestureDetector>
-      <View style={styles.iconsContainer}>
+      <View style={[{ top: marginTop * 2 }, styles.iconsContainer]}>
         <Icon
           style={styles.icons}
           onPress={() => setPosition(position === "back" ? "front" : "back")}
@@ -200,7 +218,7 @@ export default function Picture() {
         </Icon>
         <RatioChanger style={styles.icons} ratio={ratio} setState={setRatio} />
       </View>
-      <TouchableOpacity onPress={takePicture} style={[styles.takePictureIcon]}>
+      <TouchableOpacity onPress={takePicture} style={styles.takePictureIcon}>
         <FontAwesome name="circle-thin" size={80} color="#fff" />
       </TouchableOpacity>
     </GestureHandlerRootView>
@@ -214,9 +232,14 @@ const styles = StyleSheet.create({
   },
   takePictureIcon: {
     alignSelf: "center",
+    bottom: 10,
+    position: "absolute",
   },
   photoPreview: {
     flex: 1,
+  },
+  photoShoot: {
+    position: "relative",
   },
   nextButtonContainer: {
     backgroundColor: "#08aaff",
@@ -241,10 +264,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   iconsContainer: {
+    position: "absolute",
+    right: 10,
     flexDirection: "column",
     justifyContent: "space-around",
     alignItems: "flex-end",
-    marginRight: 20,
-    marginTop: 40,
   },
 });

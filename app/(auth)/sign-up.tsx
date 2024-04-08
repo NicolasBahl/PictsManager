@@ -1,43 +1,26 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Alert, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
-import { View, Text, ScrollView } from "@/components/Themed";
+import { Text, ScrollView, View } from "@/components/Themed";
 import { Input } from "@/components/ui/input";
-import { useSignInMutation } from "@/graphql/generated/graphql";
-import { useAuth } from "@/providers/AuthProvider";
-import { useRouter } from "expo-router";
+import { StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import LinearGradient from 'react-native-linear-gradient';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import Colors from "@/constants/Colors";
+import { useColorScheme } from "@/components/useColorScheme";
 
-export default function SignIn() {
+export default function SignUp() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const authContext = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const passwordRef = useRef(null);
-
-  const [signIn, { loading }] = useSignInMutation({
-    onCompleted: async (data) => {
-      if (data?.signIn?.token) {
-        authContext?.signIn(data?.signIn);
-      }
-    },
-    onError: (e) => {
-      console.log(e);
-      if (e?.message?.includes("invalid")) {
-        Alert?.alert("Erreur", "Email ou mot de passe incorrect");
-      } else {
-        Alert?.alert("Erreur", "Une erreur est survenue, veuillez réessayer");
-      }
-    },
-  });
+  const confirmPasswordRef = useRef(null);
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  const gradientColors = isDarkMode ? ['#010101', '#17202b'] : ['#FEFEFE', '#dce6f0'];
+  const gradientColors = isDarkMode ? ['#010101', '#17202b'] : ['#FEFEFE', '#c1cbd6'];
   const gradientColorsButton = isDarkMode ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
 
   return (
@@ -62,7 +45,7 @@ export default function SignIn() {
           />
           <Text>PictsManager</Text>
         </View>
-        <Text style={styles.title}>Login</Text>
+        <Text style={styles.title}>Create Account</Text>
         <View style={styles.inputContainer} darkColor="transparent" lightColor="transparent">
           <Input
             value={email}
@@ -84,31 +67,51 @@ export default function SignIn() {
           <Input
             value={password}
             label="Password"
+            style={styles.input}
             onChangeText={setPassword}
             placeholder="Enter Password"
             secureTextEntry
-            autoComplete="password"
+            autoComplete="password-new"
+            textContentType="newPassword"
             autoCapitalize="none"
             autoCorrect={false}
             darkColor={Colors.dark.text}
             lightColor={Colors.light.text}
             darkBackgroundColor={Colors.dark.background}
             lightBackgroundColor={Colors.light.background}
+            returnKeyType="next"
             ref={passwordRef}
+            onSubmitEditing={() => (confirmPasswordRef.current as any)?.focus()}
+          />
+          <Input
+            value={confirmPassword}
+            label="Confirm Password"
+            style={styles.input}
+            onChangeText={setConfirmPassword}
+            placeholder="Confirm Password"
+            secureTextEntry
+            autoComplete="password"
+            textContentType="newPassword"
+            autoCapitalize="none"
+            autoCorrect={false}
+            darkColor={Colors.dark.text}
+            lightColor={Colors.light.text}
+            darkBackgroundColor={Colors.dark.background}
+            lightBackgroundColor={Colors.light.background}
             returnKeyType="done"
-            onSubmitEditing={async () => await signIn({ variables: { email: email, password: password } })}
+            ref={confirmPasswordRef}
           />
         </View>
         <View style={styles.buttonContainer} darkColor="transparent" lightColor="transparent">
-          <TouchableOpacity style={styles.button} onPress={async () => await signIn({ variables: { email: email, password: password } })}>
+          <TouchableOpacity style={styles.button}>
             <LinearGradient colors={gradientColorsButton} style={styles.buttonGradient}>
-              <Text style={styles.buttonText}>LOG IN</Text>
+              <Text style={styles.buttonText}>SIGN UP</Text>
             </LinearGradient>
           </TouchableOpacity>
           <View style={styles.changeAuthContainer} darkColor="transparent" lightColor="transparent">
-            <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Don't have an account?</Text>
-            <TouchableOpacity onPress={() => router.push("/sign-up")}>
-              <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Sign Up</Text>
+            <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Already have an account?</Text>
+            <TouchableOpacity onPress={() => router.push("/sign-in")}>
+              <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Log In</Text>
             </TouchableOpacity>
           </View>
         </View>

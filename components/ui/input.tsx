@@ -33,7 +33,14 @@ const Input = forwardRef<React.ElementRef<typeof TextInput>, InputProps>(
 
     return (
       <View>
-        {label && <Text>{label}</Text>}
+        {label && <Text
+          style={{
+            color,
+            fontSize: 16,
+            fontWeight: "bold",
+            marginBottom: 5,
+          }}
+        >{label}</Text>}
         <TextInput
           ref={ref}
           {...props}

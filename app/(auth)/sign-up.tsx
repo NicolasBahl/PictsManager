@@ -1,15 +1,25 @@
 import React, { useState, useRef } from "react";
 import { Text, ScrollView, View } from "@/components/Themed";
 import { Input } from "@/components/ui/input";
-import { StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from "react-native-linear-gradient";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { useSignUpMutation } from "@/graphql/generated/graphql";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function SignUp() {
   const router = useRouter();
+  const [signUp] = useSignUpMutation();
+  const { signIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,34 +29,90 @@ export default function SignUp() {
   const confirmPasswordRef = useRef(null);
 
   const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
-  const gradientColors = isDarkMode ? ['#010101', '#17202b'] : ['#FEFEFE', '#c1cbd6'];
-  const gradientColorsButton = isDarkMode ? ['#467599', '#9ED8DB'] : ['#b0ddff', '#e0eced'];
+  const isDarkMode = colorScheme === "dark";
+  const gradientColors = isDarkMode
+    ? ["#010101", "#17202b"]
+    : ["#FEFEFE", "#c1cbd6"];
+  const gradientColorsButton = isDarkMode
+    ? ["#467599", "#9ED8DB"]
+    : ["#b0ddff", "#e0eced"];
+
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      const { data } = await signUp({
+        variables: {
+          email,
+          password,
+        },
+      });
+      if (data?.signUp?.token) {
+        await signIn({
+          token: data.signUp.token,
+        });
+      }
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <LinearGradient colors={gradientColors} style={styles.gradient} start={{ x: 0.5, y: 0.4 }} end={{ x: 0.5, y: 0 }} />
-      <ScrollView style={styles.container} bounces={false} darkColor="transparent" lightColor="transparent">
-        <View style={styles.header} darkColor="transparent" lightColor="transparent">
+      <LinearGradient
+        colors={gradientColors}
+        style={styles.gradient}
+        start={{ x: 0.5, y: 0.4 }}
+        end={{ x: 0.5, y: 0 }}
+      />
+      <ScrollView
+        style={styles.container}
+        bounces={false}
+        darkColor="transparent"
+        lightColor="transparent"
+      >
+        <View
+          style={styles.header}
+          darkColor="transparent"
+          lightColor="transparent"
+        >
           <TouchableOpacity onPress={() => router.back()} style={styles.back}>
-            <Ionicons name="arrow-back" size={30} color={isDarkMode ? Colors.dark.text : Colors.light.text} />
+            <Ionicons
+              name="arrow-back"
+              size={30}
+              color={isDarkMode ? Colors.dark.text : Colors.light.text}
+            />
           </TouchableOpacity>
         </View>
-        <View style={styles.logoContainer} darkColor="transparent" lightColor="transparent">
+        <View
+          style={styles.logoContainer}
+          darkColor="transparent"
+          lightColor="transparent"
+        >
           <Image
-            style={[styles.logo, {
-              tintColor: isDarkMode ? Colors.dark.text : Colors.light.text
-            }]}
+            style={[
+              styles.logo,
+              {
+                tintColor: isDarkMode ? Colors.dark.text : Colors.light.text,
+              },
+            ]}
             source={require("@/assets/images/scribble.png")}
             resizeMode="contain"
           />
           <Text>PictsManager</Text>
         </View>
         <Text style={styles.title}>Create Account</Text>
-        <View style={styles.inputContainer} darkColor="transparent" lightColor="transparent">
+        <View
+          style={styles.inputContainer}
+          darkColor="transparent"
+          lightColor="transparent"
+        >
           <Input
             value={email}
             label="Email"
@@ -102,16 +168,39 @@ export default function SignUp() {
             ref={confirmPasswordRef}
           />
         </View>
-        <View style={styles.buttonContainer} darkColor="transparent" lightColor="transparent">
-          <TouchableOpacity style={styles.button}>
-            <LinearGradient colors={gradientColorsButton} style={styles.buttonGradient}>
+        <View
+          style={styles.buttonContainer}
+          darkColor="transparent"
+          lightColor="transparent"
+        >
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+            <LinearGradient
+              colors={gradientColorsButton}
+              style={styles.buttonGradient}
+            >
               <Text style={styles.buttonText}>SIGN UP</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <View style={styles.changeAuthContainer} darkColor="transparent" lightColor="transparent">
-            <Text style={styles.changeAuthText} lightColor={Colors.light.lighterBackground} darkColor={Colors.dark.lighterBackground}>Already have an account?</Text>
+          <View
+            style={styles.changeAuthContainer}
+            darkColor="transparent"
+            lightColor="transparent"
+          >
+            <Text
+              style={styles.changeAuthText}
+              lightColor={Colors.light.lighterBackground}
+              darkColor={Colors.dark.lighterBackground}
+            >
+              Already have an account?
+            </Text>
             <TouchableOpacity onPress={() => router.push("/sign-in")}>
-              <Text style={styles.changeAuthButton} lightColor={Colors.light.primary} darkColor={Colors.dark.primary}>Log In</Text>
+              <Text
+                style={styles.changeAuthButton}
+                lightColor={Colors.light.primary}
+                darkColor={Colors.dark.primary}
+              >
+                Log In
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -133,7 +222,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     marginTop: 60,
     width: "90%",
-    alignSelf: 'center',
+    alignSelf: "center",
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -181,9 +270,9 @@ const styles = StyleSheet.create({
   },
   buttonGradient: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 52
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 52,
   },
   buttonText: {
     fontSize: 24,

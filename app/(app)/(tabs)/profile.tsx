@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
@@ -7,12 +7,12 @@ import { Text, View } from "@/components/Themed";
 import Colors from "@/constants/Colors";
 
 function Profile() {
-  const { me } = useAuth();
+  const { me, signOut } = useAuth();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{me?.email || 'example@email.com'}</Text>
+        <Text style={styles.title}>{me?.email || "example@email.com"}</Text>
       </View>
       <View style={styles.listParams}>
         <Text style={styles.titleParams}>Change password:</Text>
@@ -49,11 +49,14 @@ function Profile() {
           lightBackgroundColor={Colors.light.lightBackground}
           darkBackgroundColor={Colors.dark.lightBackground}
         />
-        <Button style={styles.buttonParams} onPress={() => { }}>
+        <Button style={styles.buttonParams} onPress={() => {}}>
           <Text style={styles.buttonTitleParams}>Confirm</Text>
         </Button>
-        <Text style={styles.titleParams}>Disconnect:</Text>
-        <Button style={styles.buttonParams} onPress={() => { }} variant="destructive">
+        <Button
+          style={styles.buttonParams}
+          onPress={signOut}
+          variant="destructive"
+        >
           <Text style={styles.buttonTitleParams}>Disconnect</Text>
         </Button>
       </View>
@@ -68,8 +71,8 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 60,
     marginBottom: 16,
-    alignItems: 'center',
-    alignSelf: 'center',
+    alignItems: "center",
+    alignSelf: "center",
     width: "90%",
   },
   title: {
@@ -78,7 +81,7 @@ const styles = StyleSheet.create({
   listParams: {
     marginBottom: 16,
     width: "90%",
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   titleParams: {
     marginTop: 40,
@@ -91,13 +94,13 @@ const styles = StyleSheet.create({
   buttonParams: {
     marginTop: 10,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 0,
     height: 40,
   },
   buttonTitleParams: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

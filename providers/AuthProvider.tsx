@@ -15,12 +15,9 @@ interface AuthContextType {
 
   setMe(me: any): any;
 
-  byPass: boolean;
-  byPassSignIn(): void;
-
   signIn(
     { token, user }: { token: string; user?: any },
-    provider?: string
+    provider?: string,
   ): Promise<void>;
 
   signOut(): Promise<void>;
@@ -39,7 +36,6 @@ export function useAuth() {
 
 export const AuthProvider = ({ children }: { children?: ReactElement }) => {
   const [networkError, setNetworkError] = useState(false);
-  const [byPass, setByPass] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
   const [me, setMe] = useState<Me | null>(null);
@@ -51,18 +47,11 @@ export const AuthProvider = ({ children }: { children?: ReactElement }) => {
 
   async function signIn(
     { token, user }: { token: string; user: any },
-    provider?: string
+    provider?: string,
   ) {
     await SecureStore.setItemAsync("token", token);
     const me = await refreshMe();
 
-    router.replace("/");
-  }
-
-  // TODO: remove this function
-  // NOTE: this is a temporary function to bypass the sign in screen
-  async function byPassSignIn() {
-    setByPass(true);
     router.replace("/");
   }
 
@@ -109,23 +98,23 @@ export const AuthProvider = ({ children }: { children?: ReactElement }) => {
       ></View>
     );
 
-  // if (networkError) {
-  //   // center text to avoid layout shift
-  //   return (
-  //     <View
-  //       style={{
-  //         flex: 1,
-  //         backgroundColor: Colors?.light.background,
-  //         justifyContent: "center",
-  //       }}
-  //     >
-  //       <View style={{ alignItems: "center" }}>
-  //         <Text>Il semble y avoir un problème de connexion.</Text>
-  //         <Text>Veuillez réessayer.</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // }
+  if (networkError) {
+    // center text to avoid layout shift
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: Colors?.light.background,
+          justifyContent: "center",
+        }}
+      >
+        <View style={{ alignItems: "center" }}>
+          <Text>Il semble y avoir un problème de connexion.</Text>
+          <Text>Veuillez réessayer.</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <AuthContext.Provider
@@ -135,8 +124,6 @@ export const AuthProvider = ({ children }: { children?: ReactElement }) => {
         signOut,
         setMe,
         refreshMe,
-        byPass,
-        byPassSignIn,
       }}
     >
       {children}

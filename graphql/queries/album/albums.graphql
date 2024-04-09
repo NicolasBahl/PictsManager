@@ -1,0 +1,6 @@
+query Albums($orderBy: AlbumOrderBy, $skip: Int, $take: Int, $where: WhereAlbumInput) {
+    albums(orderBy: $orderBy, skip: $skip, take: $take, where: $where) {
+        id
+        title
+    }
+}

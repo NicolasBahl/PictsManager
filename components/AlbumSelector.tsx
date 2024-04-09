@@ -43,7 +43,11 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
     <>
       <View ref={albumRef} style={styles.albumContainer}>
         <AlbumItem
-          album={selectedAlbum}
+          album={
+            albums.find((album) => album.id === selectedAlbum.id)
+              ? selectedAlbum
+              : albums[0]
+          }
           isFirst={true}
           isLast={true}
           onSelect={handlePress}
@@ -69,6 +73,7 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
                 isLast={index === albums.length - 1}
                 onSelect={() => {
                   onAlbumSelect(album.id);
+
                   setIsMenuOpen(false);
                 }}
               />

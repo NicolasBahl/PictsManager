@@ -90,8 +90,15 @@ export default function Picture() {
 
   if (device == null)
     return (
-      <View>
-        <Text>No camera...</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "bold",
+          }}
+        >
+          Camera not available on this device
+        </Text>
       </View>
     );
 

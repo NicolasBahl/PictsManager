@@ -83,7 +83,7 @@ const Button: React.FC<ButtonProps> = ({
 const styles = StyleSheet.create({
   default: {
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
     color: "#fff",
   },
   secondary: {

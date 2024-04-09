@@ -54,6 +54,7 @@ type Mutation {
   signIn(email: String!, password: String!): AuthPayload!
   signUp(email: String!, password: String!): AuthPayload!
   updateAlbum(id: ID!, permission: AlbumPermission, title: String): Album!
+  updatePassword(newPassword: String!, oldPassword: String!): User!
   updateTag(id: ID!, tags: [String!]!): Photo!
 }
 

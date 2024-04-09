@@ -1,0 +1,6 @@
+mutation UpdateAlbum($updateAlbumId: ID!, $title: String, $permission: AlbumPermission) {
+    updateAlbum(id: $updateAlbumId, title: $title, permission: $permission) {
+        id
+
+    }
+}

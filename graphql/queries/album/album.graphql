@@ -1,0 +1,10 @@
+query Album($albumId: ID!) {
+  album(id: $albumId) {
+    accessByUsers {
+      role
+      email
+    }
+    permission
+    title
+  }
+}

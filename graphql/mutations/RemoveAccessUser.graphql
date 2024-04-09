@@ -1,0 +1,7 @@
+mutation RemoveAccessUser($removeAccessUserId: ID!, $userEmail: String!) {
+  removeAccessUser(id: $removeAccessUserId, userEmail: $userEmail) {
+    accessByUsers {
+      email
+    }
+  }
+}

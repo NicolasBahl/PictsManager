@@ -28,6 +28,7 @@ export type Album = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   owner: User;
+  permission: AlbumPermission;
   photos: Array<Photo>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -229,6 +230,52 @@ export type WherePhotoInput = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type RemoveAccessUserMutationVariables = Exact<{
+  removeAccessUserId: Scalars['ID']['input'];
+  userEmail: Scalars['String']['input'];
+}>;
+
+
+export type RemoveAccessUserMutation = { __typename?: 'Mutation', removeAccessUser: { __typename?: 'Album', accessByUsers: Array<{ __typename?: 'User', email: string }> } };
+
+export type AddAccessUserMutationVariables = Exact<{
+  addAccessUserId: Scalars['ID']['input'];
+  userEmail: Scalars['String']['input'];
+}>;
+
+
+export type AddAccessUserMutation = { __typename?: 'Mutation', addAccessUser: { __typename?: 'Album', title: string } };
+
+export type AddPhotoMutationVariables = Exact<{
+  data: CreatePhotoInput;
+}>;
+
+
+export type AddPhotoMutation = { __typename?: 'Mutation', createPhoto: { __typename?: 'Photo', id: string } };
+
+export type DeleteAlbumMutationVariables = Exact<{
+  albumId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAlbumMutation = { __typename?: 'Mutation', deleteAlbum: { __typename?: 'Album', id: string } };
+
+export type DeletePhotoMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type DeletePhotoMutation = { __typename?: 'Mutation', deletePhoto: { __typename?: 'Photo', id: string } };
+
+export type UpdateAlbumMutationVariables = Exact<{
+  updateAlbumId: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  permission?: InputMaybe<AlbumPermission>;
+}>;
+
+
+export type UpdateAlbumMutation = { __typename?: 'Mutation', updateAlbum: { __typename?: 'Album', id: string } };
+
 export type SignInMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -245,12 +292,12 @@ export type SignUpMutationVariables = Exact<{
 
 export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'AuthPayload', token: string } };
 
-export type AddPhotoMutationVariables = Exact<{
-  data: CreatePhotoInput;
+export type AlbumQueryVariables = Exact<{
+  albumId: Scalars['ID']['input'];
 }>;
 
 
-export type AddPhotoMutation = { __typename?: 'Mutation', createPhoto: { __typename?: 'Photo', id: string } };
+export type AlbumQuery = { __typename?: 'Query', album?: { __typename?: 'Album', permission: AlbumPermission, title: string, accessByUsers: Array<{ __typename?: 'User', role: UserRole, email: string }> } | null };
 
 export type AlbumsQueryVariables = Exact<{
   orderBy?: InputMaybe<AlbumOrderBy>;
@@ -267,20 +314,6 @@ export type CurrentAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type CurrentAlbumsQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: string, albums: Array<{ __typename?: 'Album', id: string, title: string }> } | null };
 
-export type DeleteAlbumMutationVariables = Exact<{
-  albumId: Scalars['ID']['input'];
-}>;
-
-
-export type DeleteAlbumMutation = { __typename?: 'Mutation', deleteAlbum: { __typename?: 'Album', id: string } };
-
-export type DeletePhotoMutationVariables = Exact<{
-  id: Scalars['String']['input'];
-}>;
-
-
-export type DeletePhotoMutation = { __typename?: 'Mutation', deletePhoto: { __typename?: 'Photo', id: string } };
-
 export type PhotosQueryVariables = Exact<{
   where?: InputMaybe<WherePhotoInput>;
 }>;
@@ -294,6 +327,210 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: string, email: string } | null };
 
 
+export const RemoveAccessUserDocument = gql`
+    mutation RemoveAccessUser($removeAccessUserId: ID!, $userEmail: String!) {
+  removeAccessUser(id: $removeAccessUserId, userEmail: $userEmail) {
+    accessByUsers {
+      email
+    }
+  }
+}
+    `;
+export type RemoveAccessUserMutationFn = Apollo.MutationFunction<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>;
+
+/**
+ * __useRemoveAccessUserMutation__
+ *
+ * To run a mutation, you first call `useRemoveAccessUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAccessUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAccessUserMutation, { data, loading, error }] = useRemoveAccessUserMutation({
+ *   variables: {
+ *      removeAccessUserId: // value for 'removeAccessUserId'
+ *      userEmail: // value for 'userEmail'
+ *   },
+ * });
+ */
+export function useRemoveAccessUserMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>(RemoveAccessUserDocument, options);
+      }
+export type RemoveAccessUserMutationHookResult = ReturnType<typeof useRemoveAccessUserMutation>;
+export type RemoveAccessUserMutationResult = Apollo.MutationResult<RemoveAccessUserMutation>;
+export type RemoveAccessUserMutationOptions = Apollo.BaseMutationOptions<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>;
+export const AddAccessUserDocument = gql`
+    mutation AddAccessUser($addAccessUserId: ID!, $userEmail: String!) {
+  addAccessUser(id: $addAccessUserId, userEmail: $userEmail) {
+    title
+  }
+}
+    `;
+export type AddAccessUserMutationFn = Apollo.MutationFunction<AddAccessUserMutation, AddAccessUserMutationVariables>;
+
+/**
+ * __useAddAccessUserMutation__
+ *
+ * To run a mutation, you first call `useAddAccessUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAccessUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAccessUserMutation, { data, loading, error }] = useAddAccessUserMutation({
+ *   variables: {
+ *      addAccessUserId: // value for 'addAccessUserId'
+ *      userEmail: // value for 'userEmail'
+ *   },
+ * });
+ */
+export function useAddAccessUserMutation(baseOptions?: Apollo.MutationHookOptions<AddAccessUserMutation, AddAccessUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAccessUserMutation, AddAccessUserMutationVariables>(AddAccessUserDocument, options);
+      }
+export type AddAccessUserMutationHookResult = ReturnType<typeof useAddAccessUserMutation>;
+export type AddAccessUserMutationResult = Apollo.MutationResult<AddAccessUserMutation>;
+export type AddAccessUserMutationOptions = Apollo.BaseMutationOptions<AddAccessUserMutation, AddAccessUserMutationVariables>;
+export const AddPhotoDocument = gql`
+    mutation AddPhoto($data: CreatePhotoInput!) {
+  createPhoto(data: $data) {
+    id
+  }
+}
+    `;
+export type AddPhotoMutationFn = Apollo.MutationFunction<AddPhotoMutation, AddPhotoMutationVariables>;
+
+/**
+ * __useAddPhotoMutation__
+ *
+ * To run a mutation, you first call `useAddPhotoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPhotoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPhotoMutation, { data, loading, error }] = useAddPhotoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useAddPhotoMutation(baseOptions?: Apollo.MutationHookOptions<AddPhotoMutation, AddPhotoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPhotoMutation, AddPhotoMutationVariables>(AddPhotoDocument, options);
+      }
+export type AddPhotoMutationHookResult = ReturnType<typeof useAddPhotoMutation>;
+export type AddPhotoMutationResult = Apollo.MutationResult<AddPhotoMutation>;
+export type AddPhotoMutationOptions = Apollo.BaseMutationOptions<AddPhotoMutation, AddPhotoMutationVariables>;
+export const DeleteAlbumDocument = gql`
+    mutation DeleteAlbum($albumId: ID!) {
+  deleteAlbum(id: $albumId) {
+    id
+  }
+}
+    `;
+export type DeleteAlbumMutationFn = Apollo.MutationFunction<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
+
+/**
+ * __useDeleteAlbumMutation__
+ *
+ * To run a mutation, you first call `useDeleteAlbumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAlbumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAlbumMutation, { data, loading, error }] = useDeleteAlbumMutation({
+ *   variables: {
+ *      albumId: // value for 'albumId'
+ *   },
+ * });
+ */
+export function useDeleteAlbumMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAlbumMutation, DeleteAlbumMutationVariables>(DeleteAlbumDocument, options);
+      }
+export type DeleteAlbumMutationHookResult = ReturnType<typeof useDeleteAlbumMutation>;
+export type DeleteAlbumMutationResult = Apollo.MutationResult<DeleteAlbumMutation>;
+export type DeleteAlbumMutationOptions = Apollo.BaseMutationOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
+export const DeletePhotoDocument = gql`
+    mutation DeletePhoto($id: String!) {
+  deletePhoto(id: $id) {
+    id
+  }
+}
+    `;
+export type DeletePhotoMutationFn = Apollo.MutationFunction<DeletePhotoMutation, DeletePhotoMutationVariables>;
+
+/**
+ * __useDeletePhotoMutation__
+ *
+ * To run a mutation, you first call `useDeletePhotoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePhotoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePhotoMutation, { data, loading, error }] = useDeletePhotoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePhotoMutation(baseOptions?: Apollo.MutationHookOptions<DeletePhotoMutation, DeletePhotoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePhotoMutation, DeletePhotoMutationVariables>(DeletePhotoDocument, options);
+      }
+export type DeletePhotoMutationHookResult = ReturnType<typeof useDeletePhotoMutation>;
+export type DeletePhotoMutationResult = Apollo.MutationResult<DeletePhotoMutation>;
+export type DeletePhotoMutationOptions = Apollo.BaseMutationOptions<DeletePhotoMutation, DeletePhotoMutationVariables>;
+export const UpdateAlbumDocument = gql`
+    mutation UpdateAlbum($updateAlbumId: ID!, $title: String, $permission: AlbumPermission) {
+  updateAlbum(id: $updateAlbumId, title: $title, permission: $permission) {
+    id
+  }
+}
+    `;
+export type UpdateAlbumMutationFn = Apollo.MutationFunction<UpdateAlbumMutation, UpdateAlbumMutationVariables>;
+
+/**
+ * __useUpdateAlbumMutation__
+ *
+ * To run a mutation, you first call `useUpdateAlbumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAlbumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAlbumMutation, { data, loading, error }] = useUpdateAlbumMutation({
+ *   variables: {
+ *      updateAlbumId: // value for 'updateAlbumId'
+ *      title: // value for 'title'
+ *      permission: // value for 'permission'
+ *   },
+ * });
+ */
+export function useUpdateAlbumMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAlbumMutation, UpdateAlbumMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAlbumMutation, UpdateAlbumMutationVariables>(UpdateAlbumDocument, options);
+      }
+export type UpdateAlbumMutationHookResult = ReturnType<typeof useUpdateAlbumMutation>;
+export type UpdateAlbumMutationResult = Apollo.MutationResult<UpdateAlbumMutation>;
+export type UpdateAlbumMutationOptions = Apollo.BaseMutationOptions<UpdateAlbumMutation, UpdateAlbumMutationVariables>;
 export const SignInDocument = gql`
     mutation SignIn($email: String!, $password: String!) {
   signIn(email: $email, password: $password) {
@@ -362,39 +599,51 @@ export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignU
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
-export const AddPhotoDocument = gql`
-    mutation AddPhoto($data: CreatePhotoInput!) {
-  createPhoto(data: $data) {
-    id
+export const AlbumDocument = gql`
+    query Album($albumId: ID!) {
+  album(id: $albumId) {
+    accessByUsers {
+      role
+      email
+    }
+    permission
+    title
   }
 }
     `;
-export type AddPhotoMutationFn = Apollo.MutationFunction<AddPhotoMutation, AddPhotoMutationVariables>;
 
 /**
- * __useAddPhotoMutation__
+ * __useAlbumQuery__
  *
- * To run a mutation, you first call `useAddPhotoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPhotoMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
+ * To run a query within a React component, call `useAlbumQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAlbumQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const [addPhotoMutation, { data, loading, error }] = useAddPhotoMutation({
+ * const { data, loading, error } = useAlbumQuery({
  *   variables: {
- *      data: // value for 'data'
+ *      albumId: // value for 'albumId'
  *   },
  * });
  */
-export function useAddPhotoMutation(baseOptions?: Apollo.MutationHookOptions<AddPhotoMutation, AddPhotoMutationVariables>) {
+export function useAlbumQuery(baseOptions: Apollo.QueryHookOptions<AlbumQuery, AlbumQueryVariables> & ({ variables: AlbumQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddPhotoMutation, AddPhotoMutationVariables>(AddPhotoDocument, options);
+        return Apollo.useQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
       }
-export type AddPhotoMutationHookResult = ReturnType<typeof useAddPhotoMutation>;
-export type AddPhotoMutationResult = Apollo.MutationResult<AddPhotoMutation>;
-export type AddPhotoMutationOptions = Apollo.BaseMutationOptions<AddPhotoMutation, AddPhotoMutationVariables>;
+export function useAlbumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AlbumQuery, AlbumQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
+        }
+export function useAlbumSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AlbumQuery, AlbumQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
+        }
+export type AlbumQueryHookResult = ReturnType<typeof useAlbumQuery>;
+export type AlbumLazyQueryHookResult = ReturnType<typeof useAlbumLazyQuery>;
+export type AlbumSuspenseQueryHookResult = ReturnType<typeof useAlbumSuspenseQuery>;
+export type AlbumQueryResult = Apollo.QueryResult<AlbumQuery, AlbumQueryVariables>;
 export const AlbumsDocument = gql`
     query Albums($orderBy: AlbumOrderBy, $skip: Int, $take: Int, $where: WhereAlbumInput) {
   albums(orderBy: $orderBy, skip: $skip, take: $take, where: $where) {
@@ -482,72 +731,6 @@ export type CurrentAlbumsQueryHookResult = ReturnType<typeof useCurrentAlbumsQue
 export type CurrentAlbumsLazyQueryHookResult = ReturnType<typeof useCurrentAlbumsLazyQuery>;
 export type CurrentAlbumsSuspenseQueryHookResult = ReturnType<typeof useCurrentAlbumsSuspenseQuery>;
 export type CurrentAlbumsQueryResult = Apollo.QueryResult<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>;
-export const DeleteAlbumDocument = gql`
-    mutation DeleteAlbum($albumId: ID!) {
-  deleteAlbum(id: $albumId) {
-    id
-  }
-}
-    `;
-export type DeleteAlbumMutationFn = Apollo.MutationFunction<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
-
-/**
- * __useDeleteAlbumMutation__
- *
- * To run a mutation, you first call `useDeleteAlbumMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteAlbumMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteAlbumMutation, { data, loading, error }] = useDeleteAlbumMutation({
- *   variables: {
- *      albumId: // value for 'albumId'
- *   },
- * });
- */
-export function useDeleteAlbumMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAlbumMutation, DeleteAlbumMutationVariables>(DeleteAlbumDocument, options);
-      }
-export type DeleteAlbumMutationHookResult = ReturnType<typeof useDeleteAlbumMutation>;
-export type DeleteAlbumMutationResult = Apollo.MutationResult<DeleteAlbumMutation>;
-export type DeleteAlbumMutationOptions = Apollo.BaseMutationOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
-export const DeletePhotoDocument = gql`
-    mutation DeletePhoto($id: String!) {
-  deletePhoto(id: $id) {
-    id
-  }
-}
-    `;
-export type DeletePhotoMutationFn = Apollo.MutationFunction<DeletePhotoMutation, DeletePhotoMutationVariables>;
-
-/**
- * __useDeletePhotoMutation__
- *
- * To run a mutation, you first call `useDeletePhotoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeletePhotoMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deletePhotoMutation, { data, loading, error }] = useDeletePhotoMutation({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useDeletePhotoMutation(baseOptions?: Apollo.MutationHookOptions<DeletePhotoMutation, DeletePhotoMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePhotoMutation, DeletePhotoMutationVariables>(DeletePhotoDocument, options);
-      }
-export type DeletePhotoMutationHookResult = ReturnType<typeof useDeletePhotoMutation>;
-export type DeletePhotoMutationResult = Apollo.MutationResult<DeletePhotoMutation>;
-export type DeletePhotoMutationOptions = Apollo.BaseMutationOptions<DeletePhotoMutation, DeletePhotoMutationVariables>;
 export const PhotosDocument = gql`
     query Photos($where: WherePhotoInput) {
   photos(where: $where) {

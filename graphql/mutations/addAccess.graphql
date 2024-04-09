@@ -1,0 +1,5 @@
+mutation AddAccessUser($addAccessUserId: ID!, $userEmail: String!) {
+    addAccessUser(id: $addAccessUserId, userEmail: $userEmail) {
+        title
+    }
+}

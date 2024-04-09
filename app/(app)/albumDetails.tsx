@@ -223,7 +223,7 @@ function AlbumDetails() {
         />
       )}
       <FlatList
-        data={photosData?.photos}
+        data={photosData?.photos ?? []}
         renderItem={({ item }) => (
           <View
             onTouchEnd={() => {

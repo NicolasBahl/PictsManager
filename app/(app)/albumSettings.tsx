@@ -316,7 +316,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   userDelete: {
-  userDelete: {
     position: "absolute",
     right: 10,
   },

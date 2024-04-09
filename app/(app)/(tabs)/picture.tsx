@@ -1,6 +1,3 @@
-// TODO: Remplacer le fond noir derrière la photo par autre chose
-// TODO: Rajouter animation entre le changement de ratio
-
 import {
   StyleSheet,
   Text,
@@ -34,6 +31,9 @@ import Reanimated, {
   interpolate,
   useAnimatedProps,
   useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import Icon from "@/components/ui/icon";
 import {
@@ -43,6 +43,7 @@ import {
 } from "react-native-gesture-handler";
 import type { PhotoFile } from "react-native-vision-camera/src/PhotoFile";
 import ImageEditor from '@react-native-community/image-editor';
+import Animated from "react-native-reanimated";
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -124,9 +125,6 @@ export default function Picture() {
         break;
     }
 
-    console.log(width, height, offsetX, offsetY);
-
-
     let croppedPhotoUri = await ImageEditor.cropImage(photo.path, {
       offset: { x: offsetX, y: offsetY },
       size: {
@@ -163,18 +161,51 @@ export default function Picture() {
   }, [hasPermission]);
 
   const screen = Dimensions.get("screen");
-  let width = screen.width;
-  let height = width;
-  let marginTop = 0;
+  const width = useSharedValue(screen.width);
+  const height = useSharedValue(screen.width);
+  const marginTop = useSharedValue((screen.height - screen.width) / 4.5);
 
-  if (ratio === '16:9') {
-    height = width * 16 / 9;
-  } else if (ratio === '4:3') {
-    height = width * 4 / 3;
-  } else if (ratio === '1:1') {
-    height = width;
-  }
-  marginTop = (screen.height - height) / 4.5;
+  React.useEffect(() => {
+    let newHeight = screen.width;
+    if (ratio === '16:9') {
+      newHeight = screen.width * 16 / 9;
+    } else if (ratio === '4:3') {
+      newHeight = screen.width * 4 / 3;
+    } else if (ratio === '1:1') {
+      newHeight = screen.width;
+    }
+    const newMarginTop = (screen.height - newHeight) / 4.5;
+
+    width.value = withTiming(screen.width);
+    height.value = withTiming(newHeight);
+    marginTop.value = withTiming(newMarginTop);
+  }, [ratio]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      width: withTiming(width.value, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
+      height: withTiming(height.value, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
+      marginTop: withTiming(marginTop.value, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
+    };
+  });
+
+  const iconsContainerStyle = useAnimatedStyle(() => {
+    return {
+      top: withTiming(marginTop.value * 2, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      }),
+    };
+  });
 
   const format = useCameraFormat(device, [
     { photoResolution: 'max' },
@@ -217,7 +248,6 @@ export default function Picture() {
         styles.container,
         {
           flex: 1,
-          backgroundColor: "black",
         },
       ]}
     >
@@ -228,12 +258,12 @@ export default function Picture() {
           photo={true}
           ref={camera}
           zoom={zoom}
-          style={[{ width: width, height: height, marginTop: marginTop }, styles.photoShoot]}
+          style={[animatedStyle, styles.photoShoot]}
           device={device}
           isActive={true}
         />
       </GestureDetector>
-      <View style={[{ top: marginTop * 2 }, styles.iconsContainer]}>
+      <Animated.View style={[iconsContainerStyle, styles.iconsContainer]}>
         <Icon
           style={styles.icons}
           onPress={() => setPosition(position === "back" ? "front" : "back")}
@@ -251,7 +281,7 @@ export default function Picture() {
           />
         </Icon>
         <RatioChanger style={styles.icons} ratio={ratio} setState={setRatio} />
-      </View>
+      </Animated.View>
       <TouchableOpacity onPress={takePicture} style={styles.takePictureIcon}>
         <FontAwesome name="circle-thin" size={80} color="#fff" />
       </TouchableOpacity>

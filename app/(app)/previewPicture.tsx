@@ -89,7 +89,15 @@ export default function ModalScreen() {
     Image.getSize(uri.toString(), (width, height) => {
       setImageRatio(width / height);
     });
-  }, [uri, metadata,selectedAlbum]);
+  }, [uri, metadata, selectedAlbum]);
+
+  const inputRef = useRef<TextInput | null>(null);
+
+  const handlePress = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -105,10 +113,7 @@ export default function ModalScreen() {
           style={styles.tagsInputContainer}
           backgroundColor={BackgroundColor.LightBackground}
         >
-          <View
-            style={styles.scrollView}
-            backgroundColor={BackgroundColor.LightBackground}
-          >
+          <TouchableOpacity activeOpacity={1} onPress={handlePress} style={styles.scrollView}>
             {capturedText.map((text, index) => (
               <TouchableOpacity
                 onPress={() => removeText(index)}
@@ -126,13 +131,14 @@ export default function ModalScreen() {
               </TouchableOpacity>
             ))}
             <TextInput
+              ref={inputRef}
               style={styles.textInput}
               onChange={handleInputChange}
               value={inputValue}
               autoComplete="off"
               autoCorrect={false}
             />
-          </View>
+          </TouchableOpacity>
         </View>
         {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
           <>
@@ -173,7 +179,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     paddingVertical: 40,
-    height: "100%",
   },
   image: {
     marginTop: 20,
@@ -219,6 +224,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     borderRadius: 8,
     flexDirection: "row",
+    height: "100%",
+    width: "100%",
   },
   tag: {
     borderRadius: 4,
@@ -227,6 +234,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     marginHorizontal: 2,
     padding: 4,
+    height: 30,
   },
   tagText: {
     fontSize: 14,

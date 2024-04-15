@@ -73,99 +73,99 @@ function AlbumDetails() {
           menuConfig={
             isSelectMode
               ? {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "selectAll",
-                      actionTitle:
-                        selectedImages.length === photosData?.photos.length
-                          ? "Unselect All"
-                          : "Select All",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "selectAll",
+                    actionTitle:
+                      selectedImages.length === photosData?.photos.length
+                        ? "Unselect All"
+                        : "Select All",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      actionKey: "delete",
-                      actionTitle: "Delete",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "trash",
-                        },
+                  },
+                  {
+                    actionKey: "delete",
+                    actionTitle: "Delete",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "trash",
                       },
                     },
-                    {
-                      actionKey: "cancel",
-                      actionTitle: "Cancel",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "xmark",
-                        },
+                  },
+                  {
+                    actionKey: "cancel",
+                    actionTitle: "Cancel",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "xmark",
                       },
                     },
-                  ],
-                }
+                  },
+                ],
+              }
               : {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "select",
-                      actionTitle: "Select",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "select",
+                    actionTitle: "Select",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      menuTitle: "Sort",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "arrow.up.arrow.down",
-                        },
+                  },
+                  {
+                    menuTitle: "Sort",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "arrow.up.arrow.down",
                       },
-                      menuItems: [
-                        {
-                          actionKey: "sort-date-asc",
-                          actionTitle: "Date Asc",
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "calendar",
-                            },
+                    },
+                    menuItems: [
+                      {
+                        actionKey: "sort-date-asc",
+                        actionTitle: "Date Asc",
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "calendar",
                           },
                         },
-                        {
-                          actionKey: "sort-date-desc",
-                          actionTitle: "Date Desc",
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "calendar.badge.minus",
-                            },
+                      },
+                      {
+                        actionKey: "sort-date-desc",
+                        actionTitle: "Date Desc",
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "calendar.badge.minus",
                           },
                         },
-                      ],
-                    },
-                    {
-                      actionKey: "settings",
-                      actionTitle: "Settings",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "gear",
-                        },
+                      },
+                    ],
+                  },
+                  {
+                    actionKey: "settings",
+                    actionTitle: "Settings",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "gear",
                       },
                     },
-                  ],
-                }
+                  },
+                ],
+              }
           }
           onPressMenuItem={({ nativeEvent }) => {
             switch (nativeEvent.actionKey) {
@@ -234,6 +234,17 @@ function AlbumDetails() {
                   } else {
                     return [...prev, item];
                   }
+                });
+              } else {
+                router.push({
+                  pathname: "/(app)/photoView",
+                  params: {
+                    id: item.id,
+                    url: item.media.url ?? "",
+                    tags: item.tags.toString(),
+                    albumId: albumId,
+                    albumName: albumTitle,
+                  },
                 });
               }
             }}

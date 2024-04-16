@@ -133,7 +133,9 @@ function PhotoView() {
           activeOpacity={1}
           onPressOut={() => setModalVisible(false)}
         >
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, {
+            backgroundColor: isDarkMode ? "black" : "white",
+          }]}>
             <Text style={styles.title}>Tags</Text>
             <View
               style={styles.tagsInputContainer}

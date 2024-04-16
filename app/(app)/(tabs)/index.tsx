@@ -1,9 +1,5 @@
 import React, { useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-} from "react-native";
+import { ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, Text, View } from "@/components/Themed";
 import SearchBar from "@/components/SearchBar";
@@ -18,6 +14,7 @@ import {
   useAlbumsQuery,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
+
 
 export default function Albums() {
   const searchBarRef = useRef(null);
@@ -229,7 +226,11 @@ export default function Albums() {
       </View>
       <ScrollView
         refreshControl={
-          <RefreshControl tintColor={isDarkMode ? Colors.dark.primary : Colors.light.primary} refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            tintColor={isDarkMode ? Colors.dark.primary : Colors.light.primary}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
         }
       >
         <View style={styles.searchBar}>
@@ -247,6 +248,21 @@ export default function Albums() {
           )}
         </View>
         <View style={styles.albumContainer}>
+          <View style={styles.album}>
+            {!searchText && (
+              <AlbumItem
+                album={{ title: "My Pictures", id: "no-album" }}
+                isFirst={true}
+                isLast={true}
+                onSelect={() => {
+                  router.push({
+                    pathname: "/(app)/albumDetails",
+                    params: { albumTitle: "My Pictures", albumId: "no-album" },
+                  });
+                }}
+              />
+            )}
+          </View>
           {albums?.albums && albums?.albums.length > 0 ? (
             albums?.albums.map((album) => (
               <View key={album.id} style={styles.album}>
@@ -282,7 +298,7 @@ export default function Albums() {
                   fontSize: searchText ? 14 : 16,
                 }}
               >
-                {searchText ? "No albums found" : "You have no albums yet 😢"}
+                {searchText && !loading && "No albums found"}
               </Text>
             </View>
           )}

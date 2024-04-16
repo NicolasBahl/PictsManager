@@ -20,6 +20,7 @@ import {
   useDeletePhotoMutation,
   usePhotosQuery,
 } from "@/graphql/generated/graphql";
+import { Skeleton } from "moti/skeleton";
 
 function AlbumDetails() {
   const { albumTitle, albumId } = useLocalSearchParams();
@@ -50,6 +51,55 @@ function AlbumDetails() {
   const numColumns = 3;
   const imageSize =
     (Dimensions.get("window").width * 0.9 - (numColumns + 1) * 4) / numColumns;
+
+  const ImageItem = ({ item }: { item: Pick<Photo, "media" | "id"> }) => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    return (
+      <View
+        onTouchEnd={() => {
+          if (isSelectMode) {
+            setSelectedImages((prev) => {
+              if (prev.includes(item)) {
+                return prev.filter((i) => i.id !== item.id);
+              } else {
+                return [...prev, item];
+              }
+            });
+          }
+        }}
+      >
+        <Skeleton
+          show={isLoading}
+          colorMode={isDarkMode ? "dark" : "light"}
+          radius={"square"}
+        >
+          <Image
+            onLoadStart={() => setIsLoading(true)}
+            onLoad={() => setIsLoading(false)}
+            source={{ uri: item.media.url || "" }}
+            style={{
+              ...styles.image,
+              width: imageSize,
+              height: imageSize,
+            }}
+          />
+        </Skeleton>
+        {isSelectMode && (
+          <Ionicons
+            name={
+              selectedImages.includes(item)
+                ? "checkmark-circle"
+                : "ellipse-outline"
+            }
+            size={24}
+            color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
+            style={styles.imageIcon}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -303,7 +353,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   imageContainer: {
-    alignSelf: "center",
+    alignSelf: "flex-start",
     marginTop: 8,
   },
   imageIcon: {

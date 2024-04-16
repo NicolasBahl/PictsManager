@@ -1,0 +1,6 @@
+mutation CreateAlbum($title: String!) {
+    createAlbum(title: $title) {
+        id
+        title
+    }
+}

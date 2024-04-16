@@ -241,7 +241,7 @@ function AlbumDetails() {
                   params: {
                     id: item.id,
                     url: item.media.url ?? "",
-                    tags: item.tags.toString(),
+                    tags: item.tags.map((tag: { name: string }) => tag.name).join(', '),
                     albumId: albumId,
                     albumName: albumTitle,
                   },

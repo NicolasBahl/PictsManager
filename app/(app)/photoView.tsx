@@ -1,16 +1,51 @@
-import React from "react";
-import { Text, View } from "@/components/Themed";
-import { TouchableOpacity, StyleSheet, Image } from "react-native";
+import React, { useState, useRef } from "react";
+import { Text, View, BackgroundColor } from "@/components/Themed";
+import { TouchableOpacity, StyleSheet, Image, Modal, TextInput, TextInputChangeEventData, NativeSyntheticEvent } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
+import { AlbumSelector } from "@/components/AlbumSelector";
+import { useCurrentAlbumsQuery } from "@/graphql/generated/graphql";
 
 function PhotoView() {
   const { id, url, tags, albumId, albumName } = useLocalSearchParams();
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [inputValue, setInputValue] = useState("");
+  const [capturedText, setCapturedText] = useState<string[]>(Array.isArray(tags) ? tags : tags ? tags.split(', ') : []);
+
+  const inputRef = useRef<TextInput | null>(null);
+
+  const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
+  const { data: albumData } = useCurrentAlbumsQuery();
+
+  const removeText = (index: number) => {
+    const newTextArray = capturedText.filter((_, i) => i !== index);
+    setCapturedText(newTextArray);
+  };
+  const handleInputChange = (
+    e: NativeSyntheticEvent<TextInputChangeEventData>,
+  ) => {
+    setInputValue(e.nativeEvent.text);
+
+    // Check if the last character is a space
+    if (e.nativeEvent.text.slice(-1) === " ") {
+      // Add the text before the space to the capturedText array
+      setCapturedText([...capturedText, e.nativeEvent.text.trim()]);
+      setInputValue(""); // Reset input value if needed
+    }
+  };
+
+  const handlePress = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -30,7 +65,7 @@ function PhotoView() {
         }]}
       />
       <View style={styles.footer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Ionicons
             name="information-circle-outline"
             size={30}
@@ -45,6 +80,65 @@ function PhotoView() {
           />
         </TouchableOpacity>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <TouchableOpacity
+          style={styles.modalViewParent}
+          activeOpacity={1}
+          onPressOut={() => setModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <Text style={styles.title}>Tags</Text>
+            <View
+              style={styles.tagsInputContainer}
+              backgroundColor={BackgroundColor.LightBackground}
+            >
+              <TouchableOpacity activeOpacity={1} onPress={handlePress} style={styles.scrollView}>
+                {capturedText.map((text, index) => (
+                  <TouchableOpacity
+                    onPress={() => removeText(index)}
+                    key={index}
+                    style={[
+                      styles.tag,
+                      {
+                        backgroundColor: isDarkMode
+                          ? Colors.dark[BackgroundColor.LighterBackground]
+                          : Colors.light[BackgroundColor.LighterBackground],
+                      },
+                    ]}
+                  >
+                    <Text style={styles.tagText}>{text}</Text>
+                  </TouchableOpacity>
+                ))}
+                <TextInput
+                  ref={inputRef}
+                  style={styles.textInput}
+                  onChange={handleInputChange}
+                  value={inputValue}
+                  autoComplete="off"
+                  autoCorrect={false}
+                />
+              </TouchableOpacity>
+            </View>
+            {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
+              <>
+                <Text style={styles.title}>Album</Text>
+                <AlbumSelector
+                  albums={albumData?.me?.albums ?? []}
+                  selectedAlbum={albumData?.me.albums.find((album) => album.id === selectedAlbum) ?? albumData?.me.albums[0]}
+                  onAlbumSelect={setSelectedAlbum}
+                />
+              </>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -78,7 +172,80 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
-  }
+  },
+  modalViewParent: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 22,
+    backgroundColor: "transparent"
+  },
+  modalView: {
+    width: "100%",
+    maxHeight: "50%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingBottom: 35,
+    paddingTop: 10,
+    alignItems: "center",
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  },
+  tagsInputContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    height: 100,
+    width: "80%",
+    borderRadius: 8,
+    marginHorizontal: 20,
+    padding: 2,
+  },
+  scrollView: {
+    flexWrap: "wrap",
+    borderRadius: 8,
+    flexDirection: "row",
+    height: "100%",
+    width: "100%",
+  },
+  tag: {
+    borderRadius: 4,
+    justifyContent: "center",
+    alignContent: "center",
+    marginVertical: 2,
+    marginHorizontal: 2,
+    padding: 4,
+    height: 30,
+  },
+  tagText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  textInput: {
+    flex: 1,
+  },
+  title: {
+    marginTop: 25,
+    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: "700",
+    width: "80%",
+  },
 });
 
 export default PhotoView;

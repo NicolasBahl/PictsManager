@@ -6,7 +6,8 @@ import { useLocalSearchParams, router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
-import { useCurrentAlbumsQuery } from "@/graphql/generated/graphql";
+import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation } from "@/graphql/generated/graphql";
+import { Button } from "@/components/ui/button";
 
 function PhotoView() {
   const { id, url, tags, albumId, albumName } = useLocalSearchParams();
@@ -20,6 +21,8 @@ function PhotoView() {
   const [capturedText, setCapturedText] = useState<string[]>(Array.isArray(tags) ? tags : tags ? tags.split(', ') : []);
 
   const inputRef = useRef<TextInput | null>(null);
+
+  const [updateTagPhoto] = useUpdateTagPhotoMutation();
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
   const { data: albumData } = useCurrentAlbumsQuery();
@@ -46,6 +49,16 @@ function PhotoView() {
       inputRef.current.focus();
     }
   };
+
+  const handleSave = async () => {
+    await updateTagPhoto({
+      variables: {
+        id: id as string,
+        tags: capturedText,
+      },
+    });
+    setModalVisible(false);
+  }
 
   return (
     <View style={styles.container}>
@@ -136,6 +149,24 @@ function PhotoView() {
                 />
               </>
             )}
+            <View style={styles.buttonContainer}>
+              <Button
+                activeOpacity={0.5}
+                style={styles.button}
+                onPress={() => setModalVisible(false)}
+                variant="secondary"
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </Button>
+              <Button
+                style={styles.button}
+                activeOpacity={0.5}
+                onPress={handleSave}
+                variant="default"
+              >
+                <Text style={styles.buttonText}>Save</Text>
+              </Button>
+            </View>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -189,22 +220,23 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     alignItems: "center",
   },
+  buttonContainer: {
+    marginTop: 25,
+    width: "80%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
+    backgroundColor: "transparent",
+  },
   button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
+  buttonText: {
     fontWeight: "bold",
-    textAlign: "center"
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
+    textAlign: "center",
   },
   tagsInputContainer: {
     flexDirection: "row",

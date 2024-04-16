@@ -33,9 +33,10 @@ function AppLayoutNav() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="previewPicture"  />
+      <Stack.Screen name="previewPicture" />
       <Stack.Screen name="albumDetails" options={{ headerShown: false }} />
       <Stack.Screen name="albumSettings" options={{ headerShown: false }} />
+      <Stack.Screen name="photoView" options={{ headerShown: false }} />
     </Stack>
   );
 }

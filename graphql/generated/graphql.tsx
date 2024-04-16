@@ -76,6 +76,7 @@ export type Mutation = {
   signUp: AuthPayload;
   updateAlbum: Album;
   updatePassword: User;
+  updatePhotoAlbum: Photo;
   updateTag: Photo;
 };
 
@@ -139,6 +140,12 @@ export type MutationUpdateAlbumArgs = {
 export type MutationUpdatePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePhotoAlbumArgs = {
+  albumId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -218,7 +225,6 @@ export type User = {
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  password: Scalars['String']['output'];
   role: UserRole;
 };
 
@@ -229,6 +235,7 @@ export enum UserRole {
 
 export type WhereAlbumInput = {
   isMyAlbum?: InputMaybe<Scalars['Boolean']['input']>;
+  isWritableAlbum?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -306,6 +313,14 @@ export type SignUpMutationVariables = Exact<{
 
 export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'AuthPayload', token: string } };
 
+export type UpdatePhotoAlbumMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  albumId: Scalars['ID']['input'];
+}>;
+
+
+export type UpdatePhotoAlbumMutation = { __typename?: 'Mutation', updatePhotoAlbum: { __typename?: 'Photo', id: string } };
+
 export type UpdatePasswordMutationVariables = Exact<{
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
@@ -313,6 +328,14 @@ export type UpdatePasswordMutationVariables = Exact<{
 
 
 export type UpdatePasswordMutation = { __typename?: 'Mutation', updatePassword: { __typename?: 'User', id: string } };
+
+export type UpdateTagPhotoMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  tags: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type UpdateTagPhotoMutation = { __typename?: 'Mutation', updateTag: { __typename?: 'Photo', id: string, tags: Array<{ __typename?: 'Tag', name: string }> } };
 
 export type AlbumQueryVariables = Exact<{
   albumId: Scalars['ID']['input'];
@@ -379,9 +402,9 @@ export type RemoveAccessUserMutationFn = Apollo.MutationFunction<RemoveAccessUse
  * });
  */
 export function useRemoveAccessUserMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>(RemoveAccessUserDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>(RemoveAccessUserDocument, options);
+}
 export type RemoveAccessUserMutationHookResult = ReturnType<typeof useRemoveAccessUserMutation>;
 export type RemoveAccessUserMutationResult = Apollo.MutationResult<RemoveAccessUserMutation>;
 export type RemoveAccessUserMutationOptions = Apollo.BaseMutationOptions<RemoveAccessUserMutation, RemoveAccessUserMutationVariables>;
@@ -413,9 +436,9 @@ export type AddAccessUserMutationFn = Apollo.MutationFunction<AddAccessUserMutat
  * });
  */
 export function useAddAccessUserMutation(baseOptions?: Apollo.MutationHookOptions<AddAccessUserMutation, AddAccessUserMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddAccessUserMutation, AddAccessUserMutationVariables>(AddAccessUserDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<AddAccessUserMutation, AddAccessUserMutationVariables>(AddAccessUserDocument, options);
+}
 export type AddAccessUserMutationHookResult = ReturnType<typeof useAddAccessUserMutation>;
 export type AddAccessUserMutationResult = Apollo.MutationResult<AddAccessUserMutation>;
 export type AddAccessUserMutationOptions = Apollo.BaseMutationOptions<AddAccessUserMutation, AddAccessUserMutationVariables>;
@@ -446,9 +469,9 @@ export type AddPhotoMutationFn = Apollo.MutationFunction<AddPhotoMutation, AddPh
  * });
  */
 export function useAddPhotoMutation(baseOptions?: Apollo.MutationHookOptions<AddPhotoMutation, AddPhotoMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddPhotoMutation, AddPhotoMutationVariables>(AddPhotoDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<AddPhotoMutation, AddPhotoMutationVariables>(AddPhotoDocument, options);
+}
 export type AddPhotoMutationHookResult = ReturnType<typeof useAddPhotoMutation>;
 export type AddPhotoMutationResult = Apollo.MutationResult<AddPhotoMutation>;
 export type AddPhotoMutationOptions = Apollo.BaseMutationOptions<AddPhotoMutation, AddPhotoMutationVariables>;
@@ -480,9 +503,9 @@ export type CreateAlbumMutationFn = Apollo.MutationFunction<CreateAlbumMutation,
  * });
  */
 export function useCreateAlbumMutation(baseOptions?: Apollo.MutationHookOptions<CreateAlbumMutation, CreateAlbumMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateAlbumMutation, CreateAlbumMutationVariables>(CreateAlbumDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CreateAlbumMutation, CreateAlbumMutationVariables>(CreateAlbumDocument, options);
+}
 export type CreateAlbumMutationHookResult = ReturnType<typeof useCreateAlbumMutation>;
 export type CreateAlbumMutationResult = Apollo.MutationResult<CreateAlbumMutation>;
 export type CreateAlbumMutationOptions = Apollo.BaseMutationOptions<CreateAlbumMutation, CreateAlbumMutationVariables>;
@@ -513,9 +536,9 @@ export type DeleteAlbumMutationFn = Apollo.MutationFunction<DeleteAlbumMutation,
  * });
  */
 export function useDeleteAlbumMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteAlbumMutation, DeleteAlbumMutationVariables>(DeleteAlbumDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<DeleteAlbumMutation, DeleteAlbumMutationVariables>(DeleteAlbumDocument, options);
+}
 export type DeleteAlbumMutationHookResult = ReturnType<typeof useDeleteAlbumMutation>;
 export type DeleteAlbumMutationResult = Apollo.MutationResult<DeleteAlbumMutation>;
 export type DeleteAlbumMutationOptions = Apollo.BaseMutationOptions<DeleteAlbumMutation, DeleteAlbumMutationVariables>;
@@ -546,9 +569,9 @@ export type DeletePhotoMutationFn = Apollo.MutationFunction<DeletePhotoMutation,
  * });
  */
 export function useDeletePhotoMutation(baseOptions?: Apollo.MutationHookOptions<DeletePhotoMutation, DeletePhotoMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePhotoMutation, DeletePhotoMutationVariables>(DeletePhotoDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<DeletePhotoMutation, DeletePhotoMutationVariables>(DeletePhotoDocument, options);
+}
 export type DeletePhotoMutationHookResult = ReturnType<typeof useDeletePhotoMutation>;
 export type DeletePhotoMutationResult = Apollo.MutationResult<DeletePhotoMutation>;
 export type DeletePhotoMutationOptions = Apollo.BaseMutationOptions<DeletePhotoMutation, DeletePhotoMutationVariables>;
@@ -581,9 +604,9 @@ export type UpdateAlbumMutationFn = Apollo.MutationFunction<UpdateAlbumMutation,
  * });
  */
 export function useUpdateAlbumMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAlbumMutation, UpdateAlbumMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateAlbumMutation, UpdateAlbumMutationVariables>(UpdateAlbumDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdateAlbumMutation, UpdateAlbumMutationVariables>(UpdateAlbumDocument, options);
+}
 export type UpdateAlbumMutationHookResult = ReturnType<typeof useUpdateAlbumMutation>;
 export type UpdateAlbumMutationResult = Apollo.MutationResult<UpdateAlbumMutation>;
 export type UpdateAlbumMutationOptions = Apollo.BaseMutationOptions<UpdateAlbumMutation, UpdateAlbumMutationVariables>;
@@ -615,9 +638,9 @@ export type SignInMutationFn = Apollo.MutationFunction<SignInMutation, SignInMut
  * });
  */
 export function useSignInMutation(baseOptions?: Apollo.MutationHookOptions<SignInMutation, SignInMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument, options);
+}
 export type SignInMutationHookResult = ReturnType<typeof useSignInMutation>;
 export type SignInMutationResult = Apollo.MutationResult<SignInMutation>;
 export type SignInMutationOptions = Apollo.BaseMutationOptions<SignInMutation, SignInMutationVariables>;
@@ -649,12 +672,46 @@ export type SignUpMutationFn = Apollo.MutationFunction<SignUpMutation, SignUpMut
  * });
  */
 export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignUpMutation, SignUpMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, options);
+}
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
+export const UpdatePhotoAlbumDocument = gql`
+    mutation UpdatePhotoAlbum($id: ID!, $albumId: ID!) {
+  updatePhotoAlbum(id: $id, albumId: $albumId) {
+    id
+  }
+}
+    `;
+export type UpdatePhotoAlbumMutationFn = Apollo.MutationFunction<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>;
+
+/**
+ * __useUpdatePhotoAlbumMutation__
+ *
+ * To run a mutation, you first call `useUpdatePhotoAlbumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePhotoAlbumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePhotoAlbumMutation, { data, loading, error }] = useUpdatePhotoAlbumMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      albumId: // value for 'albumId'
+ *   },
+ * });
+ */
+export function useUpdatePhotoAlbumMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>(UpdatePhotoAlbumDocument, options);
+}
+export type UpdatePhotoAlbumMutationHookResult = ReturnType<typeof useUpdatePhotoAlbumMutation>;
+export type UpdatePhotoAlbumMutationResult = Apollo.MutationResult<UpdatePhotoAlbumMutation>;
+export type UpdatePhotoAlbumMutationOptions = Apollo.BaseMutationOptions<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>;
 export const UpdatePasswordDocument = gql`
     mutation UpdatePassword($newPassword: String!, $oldPassword: String!) {
   updatePassword(newPassword: $newPassword, oldPassword: $oldPassword) {
@@ -683,12 +740,49 @@ export type UpdatePasswordMutationFn = Apollo.MutationFunction<UpdatePasswordMut
  * });
  */
 export function useUpdatePasswordMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePasswordMutation, UpdatePasswordMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdatePasswordMutation, UpdatePasswordMutationVariables>(UpdatePasswordDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdatePasswordMutation, UpdatePasswordMutationVariables>(UpdatePasswordDocument, options);
+}
 export type UpdatePasswordMutationHookResult = ReturnType<typeof useUpdatePasswordMutation>;
 export type UpdatePasswordMutationResult = Apollo.MutationResult<UpdatePasswordMutation>;
 export type UpdatePasswordMutationOptions = Apollo.BaseMutationOptions<UpdatePasswordMutation, UpdatePasswordMutationVariables>;
+export const UpdateTagPhotoDocument = gql`
+    mutation UpdateTagPhoto($id: ID!, $tags: [String!]!) {
+  updateTag(id: $id, tags: $tags) {
+    id
+    tags {
+      name
+    }
+  }
+}
+    `;
+export type UpdateTagPhotoMutationFn = Apollo.MutationFunction<UpdateTagPhotoMutation, UpdateTagPhotoMutationVariables>;
+
+/**
+ * __useUpdateTagPhotoMutation__
+ *
+ * To run a mutation, you first call `useUpdateTagPhotoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTagPhotoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTagPhotoMutation, { data, loading, error }] = useUpdateTagPhotoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      tags: // value for 'tags'
+ *   },
+ * });
+ */
+export function useUpdateTagPhotoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTagPhotoMutation, UpdateTagPhotoMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdateTagPhotoMutation, UpdateTagPhotoMutationVariables>(UpdateTagPhotoDocument, options);
+}
+export type UpdateTagPhotoMutationHookResult = ReturnType<typeof useUpdateTagPhotoMutation>;
+export type UpdateTagPhotoMutationResult = Apollo.MutationResult<UpdateTagPhotoMutation>;
+export type UpdateTagPhotoMutationOptions = Apollo.BaseMutationOptions<UpdateTagPhotoMutation, UpdateTagPhotoMutationVariables>;
 export const AlbumDocument = gql`
     query Album($albumId: ID!) {
   album(id: $albumId) {
@@ -718,18 +812,18 @@ export const AlbumDocument = gql`
  *   },
  * });
  */
-export function useAlbumQuery(baseOptions: Apollo.QueryHookOptions<AlbumQuery, AlbumQueryVariables> & ({ variables: AlbumQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
-      }
+export function useAlbumQuery(baseOptions: Apollo.QueryHookOptions<AlbumQuery, AlbumQueryVariables> & ({ variables: AlbumQueryVariables; skip?: boolean; } | { skip: boolean; })) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
+}
 export function useAlbumLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AlbumQuery, AlbumQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
+}
 export function useAlbumSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AlbumQuery, AlbumQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<AlbumQuery, AlbumQueryVariables>(AlbumDocument, options);
+}
 export type AlbumQueryHookResult = ReturnType<typeof useAlbumQuery>;
 export type AlbumLazyQueryHookResult = ReturnType<typeof useAlbumLazyQuery>;
 export type AlbumSuspenseQueryHookResult = ReturnType<typeof useAlbumSuspenseQuery>;
@@ -763,17 +857,17 @@ export const AlbumsDocument = gql`
  * });
  */
 export function useAlbumsQuery(baseOptions?: Apollo.QueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+}
 export function useAlbumsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+}
 export function useAlbumsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AlbumsQuery, AlbumsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<AlbumsQuery, AlbumsQueryVariables>(AlbumsDocument, options);
+}
 export type AlbumsQueryHookResult = ReturnType<typeof useAlbumsQuery>;
 export type AlbumsLazyQueryHookResult = ReturnType<typeof useAlbumsLazyQuery>;
 export type AlbumsSuspenseQueryHookResult = ReturnType<typeof useAlbumsSuspenseQuery>;
@@ -806,17 +900,17 @@ export const CurrentAlbumsDocument = gql`
  * });
  */
 export function useCurrentAlbumsQuery(baseOptions?: Apollo.QueryHookOptions<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
+}
 export function useCurrentAlbumsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
+}
 export function useCurrentAlbumsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<CurrentAlbumsQuery, CurrentAlbumsQueryVariables>(CurrentAlbumsDocument, options);
+}
 export type CurrentAlbumsQueryHookResult = ReturnType<typeof useCurrentAlbumsQuery>;
 export type CurrentAlbumsLazyQueryHookResult = ReturnType<typeof useCurrentAlbumsLazyQuery>;
 export type CurrentAlbumsSuspenseQueryHookResult = ReturnType<typeof useCurrentAlbumsSuspenseQuery>;
@@ -854,17 +948,17 @@ export const PhotosDocument = gql`
  * });
  */
 export function usePhotosQuery(baseOptions?: Apollo.QueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+}
 export function usePhotosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+}
 export function usePhotosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PhotosQuery, PhotosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<PhotosQuery, PhotosQueryVariables>(PhotosDocument, options);
+}
 export type PhotosQueryHookResult = ReturnType<typeof usePhotosQuery>;
 export type PhotosLazyQueryHookResult = ReturnType<typeof usePhotosLazyQuery>;
 export type PhotosSuspenseQueryHookResult = ReturnType<typeof usePhotosSuspenseQuery>;
@@ -894,17 +988,17 @@ export const MeDocument = gql`
  * });
  */
 export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-      }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+}
 export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+}
 export function useMeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-        }
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+}
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;

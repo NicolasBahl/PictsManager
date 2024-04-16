@@ -21,6 +21,7 @@ import {
   usePhotosQuery,
 } from "@/graphql/generated/graphql";
 import { Skeleton } from "moti/skeleton";
+import {useDebounceValue} from "usehooks-ts";
 
 function AlbumDetails() {
   const { albumTitle, albumId } = useLocalSearchParams();
@@ -29,7 +30,7 @@ function AlbumDetails() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
-  const [text, setText] = useState<string>("");
+const [text, setText] = useDebounceValue('', 500);
   const [selectedImages, setSelectedImages] = useState<Pick<Photo, "id">[]>([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
 
@@ -272,9 +273,10 @@ function AlbumDetails() {
           color={"#08aaff"}
         />
       )}
-      <FlatList
-        data={photosData?.photos ?? []}
-        renderItem={({ item }) => (
+      {photosData && photosData.photos.length > 0 ? (
+        <FlatList
+          data={photosData?.photos ?? []}
+          renderItem={({ item }) => (
           <View
             onTouchEnd={() => {
               if (isSelectMode) {
@@ -317,10 +319,21 @@ function AlbumDetails() {
             )}
           </View>
         )}
-        keyExtractor={(item) => item.id}
-        numColumns={numColumns}
-        style={styles.imageContainer}
-      />
+          keyExtractor={(item) => item.id}
+          numColumns={numColumns}
+          style={styles.imageContainer}
+        />
+      ) : (
+        <View style={{ alignItems: "center", marginTop: 20 }}>
+          <Text
+            style={{
+              color: isDarkMode ? Colors.dark.text : Colors.light.text,
+            }}
+          >
+            {text ? "No photos found 😢" : "No photos in this album 😢"}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }

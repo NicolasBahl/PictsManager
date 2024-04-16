@@ -1,16 +1,18 @@
 import React, { useState, useRef } from "react";
 import { Text, View, BackgroundColor } from "@/components/Themed";
-import { TouchableOpacity, StyleSheet, Image, Modal, TextInput, TextInputChangeEventData, NativeSyntheticEvent } from "react-native";
+import { TouchableOpacity, StyleSheet, Image, Modal, TextInput, TextInputChangeEventData, NativeSyntheticEvent, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
-import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation } from "@/graphql/generated/graphql";
+import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
 import { Button } from "@/components/ui/button";
 
 function PhotoView() {
   const { id, url, tags, albumId, albumName } = useLocalSearchParams();
+
+  const [deletePhoto] = useDeletePhotoMutation();
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
@@ -60,6 +62,31 @@ function PhotoView() {
     setModalVisible(false);
   }
 
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Photo",
+      "Are you sure you want to delete this photo?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            await deletePhoto({
+              variables: {
+                id: id as string,
+              },
+            });
+            router.back();
+          },
+          style: "destructive",
+        },
+      ],
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -85,7 +112,7 @@ function PhotoView() {
             color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleDelete}>
           <Ionicons
             name="trash-outline"
             size={30}

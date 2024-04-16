@@ -7,18 +7,17 @@ import {
   TextInputChangeEventData,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import { Text, View, ScrollView, BackgroundColor } from "@/components/Themed";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "@/components/ui/button";
 import { AlbumSelector } from "@/components/AlbumSelector";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import {
-  Album,
   useAddPhotoMutation,
+  useCreateAlbumMutation,
   useCurrentAlbumsQuery,
 } from "@/graphql/generated/graphql";
 import { ReactNativeFile } from "apollo-upload-client";
@@ -31,9 +30,12 @@ export default function ModalScreen() {
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
+  const [title, setTitle] = useState<string>("");
+
   const { data: albumData } = useCurrentAlbumsQuery();
   const [addPhoto, { loading }] = useAddPhotoMutation();
 
+  const [createAlbum, {loading: loadingAlbumCreation}] = useCreateAlbumMutation();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
@@ -113,7 +115,11 @@ export default function ModalScreen() {
           style={styles.tagsInputContainer}
           backgroundColor={BackgroundColor.LightBackground}
         >
-          <TouchableOpacity activeOpacity={1} onPress={handlePress} style={styles.scrollView}>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={handlePress}
+            style={styles.scrollView}
+          >
             {capturedText.map((text, index) => (
               <TouchableOpacity
                 onPress={() => removeText(index)}
@@ -140,12 +146,47 @@ export default function ModalScreen() {
             />
           </TouchableOpacity>
         </View>
+        <Text style={styles.title}>Create an album</Text>
+        <View
+          style={styles.createAlbumContainer}
+          backgroundColor={BackgroundColor.LightBackground}
+        >
+          <TextInput
+            value={title}
+            onChangeText={(text) => setTitle(text)}
+            selectionColor={"white"}
+            style={styles.createAbumInput}
+            placeholder={"Write the album name"}
+          />
+          <Button
+            style={{ width: "20%" }}
+            disabled={loadingAlbumCreation}
+            onPress={() =>
+              createAlbum({
+                variables: {
+                  title,
+                },
+                refetchQueries: ["CurrentAlbums"],
+                onCompleted: () => {
+                  setTitle("");
+                },
+              })
+            }
+            variant="default"
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </Button>
+        </View>
         {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
           <>
             <Text style={styles.title}>Album</Text>
             <AlbumSelector
               albums={albumData?.me?.albums ?? []}
-              selectedAlbum={albumData?.me.albums.find((album) => album.id === selectedAlbum) ?? albumData?.me.albums[0]}
+              selectedAlbum={
+                albumData?.me.albums.find(
+                  (album) => album.id === selectedAlbum,
+                ) ?? albumData?.me.albums[0]
+              }
               onAlbumSelect={setSelectedAlbum}
             />
           </>
@@ -242,5 +283,16 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
+  },
+  createAlbumContainer: {
+    flexDirection: "row",
+    paddingLeft: 20,
+    height: 60,
+    width: "80%",
+    borderRadius: 8,
+  },
+  createAbumInput: {
+    width: "80%",
+    height: "100%",
   },
 });

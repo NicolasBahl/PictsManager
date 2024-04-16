@@ -273,67 +273,69 @@ function AlbumDetails() {
           color={"#08aaff"}
         />
       )}
-      {photosData && photosData.photos.length > 0 ? (
-        <FlatList
-          data={photosData?.photos ?? []}
-          renderItem={({ item }) => (
-            <View
-              onTouchEnd={() => {
-                if (isSelectMode) {
-                  setSelectedImages((prev) => {
-                    if (prev.includes(item)) {
-                      return prev.filter((i) => i.id !== item.id);
-                    } else {
-                      return [...prev, item];
+      <View style={styles.imageContainerParent}>
+        {photosData && photosData.photos.length > 0 ? (
+          <FlatList
+            data={photosData?.photos ?? []}
+            renderItem={({ item }) => (
+              <View
+                onTouchEnd={() => {
+                  if (isSelectMode) {
+                    setSelectedImages((prev) => {
+                      if (prev.includes(item)) {
+                        return prev.filter((i) => i.id !== item.id);
+                      } else {
+                        return [...prev, item];
+                      }
+                    });
+                  } else {
+                    router.push({
+                      pathname: "/(app)/photoView",
+                      params: {
+                        id: item.id,
+                        url: item.media.url ?? "",
+                        tags: item.tags.map((tag: { name: string }) => tag.name).join(', '),
+                        albumId: albumId,
+                        albumName: albumTitle,
+                      },
+                    });
+                  }
+                }}
+              >
+                <Image
+                  source={{ uri: item.media.url || "" }}
+                  style={{ ...styles.image, width: imageSize, height: imageSize }}
+                />
+                {isSelectMode && (
+                  <Ionicons
+                    name={
+                      selectedImages.includes(item)
+                        ? "checkmark-circle"
+                        : "ellipse-outline"
                     }
-                  });
-                } else {
-                  router.push({
-                    pathname: "/(app)/photoView",
-                    params: {
-                      id: item.id,
-                      url: item.media.url ?? "",
-                      tags: item.tags.map((tag: { name: string }) => tag.name).join(', '),
-                      albumId: albumId,
-                      albumName: albumTitle,
-                    },
-                  });
-                }
+                    size={24}
+                    color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
+                    style={styles.imageIcon}
+                  />
+                )}
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            numColumns={numColumns}
+            style={styles.imageContainer}
+          />
+        ) : (
+          <View style={{ alignItems: "center", marginTop: 20 }}>
+            <Text
+              style={{
+                color: isDarkMode ? Colors.dark.text : Colors.light.text,
               }}
             >
-              <Image
-                source={{ uri: item.media.url || "" }}
-                style={{ ...styles.image, width: imageSize, height: imageSize }}
-              />
-              {isSelectMode && (
-                <Ionicons
-                  name={
-                    selectedImages.includes(item)
-                      ? "checkmark-circle"
-                      : "ellipse-outline"
-                  }
-                  size={24}
-                  color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
-                  style={styles.imageIcon}
-                />
-              )}
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-          numColumns={numColumns}
-          style={styles.imageContainer}
-        />
-      ) : (
-        <View style={{ alignItems: "center", marginTop: 20 }}>
-          <Text
-            style={{
-              color: isDarkMode ? Colors.dark.text : Colors.light.text,
-            }}
-          >
-            {text ? "No photos found 😢" : "No photos in this album 😢"}
-          </Text>
-        </View>
-      )}
+              {text ? "No photos found 😢" : "No photos in this album 😢"}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -365,9 +367,12 @@ const styles = StyleSheet.create({
     width: "90%",
     alignSelf: "center",
   },
+  imageContainerParent: {
+    alignItems: "center",
+  },
   imageContainer: {
-    alignSelf: "center",
     marginTop: 8,
+    width: "90%",
   },
   imageIcon: {
     position: "absolute",

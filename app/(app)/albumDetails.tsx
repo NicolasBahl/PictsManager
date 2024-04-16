@@ -37,7 +37,7 @@ function AlbumDetails() {
   const { data: photosData, loading } = usePhotosQuery({
     variables: {
       where: {
-        albumId: albumId as string,
+        albumId: albumId !== 'no-album' ? albumId as string : undefined,
         search: text,
       },
     },
@@ -205,6 +205,7 @@ function AlbumDetails() {
                       },
                     ],
                   },
+                    albumId !== 'no-album' &&
                   {
                     actionKey: "settings",
                     actionTitle: "Settings",

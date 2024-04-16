@@ -6,7 +6,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
-import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
+import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation, useUpdatePhotoAlbumMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
 import { Button } from "@/components/ui/button";
 
 function PhotoView() {
@@ -28,6 +28,8 @@ function PhotoView() {
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
   const { data: albumData } = useCurrentAlbumsQuery();
+
+  const [updatePhotoAlbum] = useUpdatePhotoAlbumMutation();
 
   const removeText = (index: number) => {
     const newTextArray = capturedText.filter((_, i) => i !== index);
@@ -59,6 +61,13 @@ function PhotoView() {
         tags: capturedText,
       },
     });
+    await updatePhotoAlbum({
+      variables: {
+        id: id as string,
+        albumId: selectedAlbum as string,
+      },
+      refetchQueries: ["Photos"],
+    });
     setModalVisible(false);
   }
 
@@ -78,6 +87,7 @@ function PhotoView() {
               variables: {
                 id: id as string,
               },
+              refetchQueries: ["Photos"],
             });
             router.back();
           },

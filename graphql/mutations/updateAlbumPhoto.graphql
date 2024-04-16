@@ -1,0 +1,5 @@
+mutation UpdatePhotoAlbum($id: ID!, $albumId: ID!) {
+    updatePhotoAlbum(id: $id, albumId: $albumId) {
+        id
+    }
+}

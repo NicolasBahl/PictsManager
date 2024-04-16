@@ -76,6 +76,7 @@ export type Mutation = {
   signUp: AuthPayload;
   updateAlbum: Album;
   updatePassword: User;
+  updatePhotoAlbum: Photo;
   updateTag: Photo;
 };
 
@@ -139,6 +140,12 @@ export type MutationUpdateAlbumArgs = {
 export type MutationUpdatePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePhotoAlbumArgs = {
+  albumId: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -218,7 +225,6 @@ export type User = {
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  password: Scalars['String']['output'];
   role: UserRole;
 };
 
@@ -229,6 +235,7 @@ export enum UserRole {
 
 export type WhereAlbumInput = {
   isMyAlbum?: InputMaybe<Scalars['Boolean']['input']>;
+  isWritableAlbum?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -298,6 +305,14 @@ export type SignUpMutationVariables = Exact<{
 
 
 export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'AuthPayload', token: string } };
+
+export type UpdatePhotoAlbumMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  albumId: Scalars['ID']['input'];
+}>;
+
+
+export type UpdatePhotoAlbumMutation = { __typename?: 'Mutation', updatePhotoAlbum: { __typename?: 'Photo', id: string } };
 
 export type UpdatePasswordMutationVariables = Exact<{
   newPassword: Scalars['String']['input'];
@@ -622,6 +637,40 @@ export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignU
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>;
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>;
 export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>;
+export const UpdatePhotoAlbumDocument = gql`
+    mutation UpdatePhotoAlbum($id: ID!, $albumId: ID!) {
+  updatePhotoAlbum(id: $id, albumId: $albumId) {
+    id
+  }
+}
+    `;
+export type UpdatePhotoAlbumMutationFn = Apollo.MutationFunction<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>;
+
+/**
+ * __useUpdatePhotoAlbumMutation__
+ *
+ * To run a mutation, you first call `useUpdatePhotoAlbumMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePhotoAlbumMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePhotoAlbumMutation, { data, loading, error }] = useUpdatePhotoAlbumMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      albumId: // value for 'albumId'
+ *   },
+ * });
+ */
+export function useUpdatePhotoAlbumMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>(UpdatePhotoAlbumDocument, options);
+      }
+export type UpdatePhotoAlbumMutationHookResult = ReturnType<typeof useUpdatePhotoAlbumMutation>;
+export type UpdatePhotoAlbumMutationResult = Apollo.MutationResult<UpdatePhotoAlbumMutation>;
+export type UpdatePhotoAlbumMutationOptions = Apollo.BaseMutationOptions<UpdatePhotoAlbumMutation, UpdatePhotoAlbumMutationVariables>;
 export const UpdatePasswordDocument = gql`
     mutation UpdatePassword($newPassword: String!, $oldPassword: String!) {
   updatePassword(newPassword: $newPassword, oldPassword: $oldPassword) {

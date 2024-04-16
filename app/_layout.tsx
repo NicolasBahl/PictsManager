@@ -17,6 +17,9 @@ import * as SecureStore from "expo-secure-store";
 import { setContext } from "@apollo/client/link/context";
 import { AuthProvider } from "@/providers/AuthProvider";
 
+import "react-native-reanimated";
+import "react-native-gesture-handler";
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,

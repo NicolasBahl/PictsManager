@@ -1,5 +1,9 @@
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  StyleSheet,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, Text, View } from "@/components/Themed";
 import SearchBar from "@/components/SearchBar";
@@ -25,7 +29,11 @@ export default function Albums() {
   const [updatedAt, setUpdateAt] = useState(OrderBy.Desc);
   const [title, setTitle] = useState(OrderBy.Desc);
 
-  const { data: albums, loading } = useAlbumsQuery({
+  const {
+    data: albums,
+    loading,
+    refetch,
+  } = useAlbumsQuery({
     variables: {
       where: {
         title: searchText ?? undefined,
@@ -37,8 +45,21 @@ export default function Albums() {
       },
     },
   });
+  const onRefresh = () => {
+    setRefreshing(true);
+    refreshAlbums();
+  };
 
+  const refreshAlbums = async () => {
+    const res = await refetch();
+    if (res.data) {
+      setRefreshing(false);
+    }
+    setRefreshing(false);
+  };
   const [deleteAlbum] = useDeleteAlbumMutation();
+
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const [selectedAlbums, setSelectedAlbums] = useState<
     Pick<Album, "title" | "id">[]
@@ -206,7 +227,11 @@ export default function Albums() {
           />
         </ContextMenuButton>
       </View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl tintColor={isDarkMode ? Colors.dark.primary : Colors.light.primary} refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.searchBar}>
           <SearchBar
             ref={searchBarRef}

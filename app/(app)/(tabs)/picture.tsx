@@ -114,17 +114,16 @@ export default function Picture() {
     let height = photo.height;
     let offsetX = 0;
     let offsetY = 0;
-    let temp = 0;
 
     switch (ratio) {
       case '16:9':
-        width = height * 9 / 16;
-        offsetX = (photo.width - width) / 2;
+        height = width * 9 / 16;
+        offsetX = (photo.height - height) / 2;
+        [width, height] = [height, width];
         break;
       case '4:3':
-        temp = height;
-        height = width;
-        width = temp;
+        [width, height] = [height, width];
+        width = height * 3 / 4;
         break;
       case '1:1':
         width = height;

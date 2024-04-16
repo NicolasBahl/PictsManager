@@ -21,7 +21,7 @@ import {
   usePhotosQuery,
 } from "@/graphql/generated/graphql";
 import { Skeleton } from "moti/skeleton";
-import {useDebounceValue} from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 
 function AlbumDetails() {
   const { albumTitle, albumId } = useLocalSearchParams();
@@ -30,7 +30,7 @@ function AlbumDetails() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
-const [text, setText] = useDebounceValue('', 500);
+  const [text, setText] = useDebounceValue('', 500);
   const [selectedImages, setSelectedImages] = useState<Pick<Photo, "id">[]>([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
 
@@ -277,48 +277,48 @@ const [text, setText] = useDebounceValue('', 500);
         <FlatList
           data={photosData?.photos ?? []}
           renderItem={({ item }) => (
-          <View
-            onTouchEnd={() => {
-              if (isSelectMode) {
-                setSelectedImages((prev) => {
-                  if (prev.includes(item)) {
-                    return prev.filter((i) => i.id !== item.id);
-                  } else {
-                    return [...prev, item];
-                  }
-                });
-              } else {
-                router.push({
-                  pathname: "/(app)/photoView",
-                  params: {
-                    id: item.id,
-                    url: item.media.url ?? "",
-                    tags: item.tags.map((tag: { name: string }) => tag.name).join(', '),
-                    albumId: albumId,
-                    albumName: albumTitle,
-                  },
-                });
-              }
-            }}
-          >
-            <Image
-              source={{ uri: item.media.url || "" }}
-              style={{ ...styles.image, width: imageSize, height: imageSize }}
-            />
-            {isSelectMode && (
-              <Ionicons
-                name={
-                  selectedImages.includes(item)
-                    ? "checkmark-circle"
-                    : "ellipse-outline"
+            <View
+              onTouchEnd={() => {
+                if (isSelectMode) {
+                  setSelectedImages((prev) => {
+                    if (prev.includes(item)) {
+                      return prev.filter((i) => i.id !== item.id);
+                    } else {
+                      return [...prev, item];
+                    }
+                  });
+                } else {
+                  router.push({
+                    pathname: "/(app)/photoView",
+                    params: {
+                      id: item.id,
+                      url: item.media.url ?? "",
+                      tags: item.tags.map((tag: { name: string }) => tag.name).join(', '),
+                      albumId: albumId,
+                      albumName: albumTitle,
+                    },
+                  });
                 }
-                size={24}
-                color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
-                style={styles.imageIcon}
+              }}
+            >
+              <Image
+                source={{ uri: item.media.url || "" }}
+                style={{ ...styles.image, width: imageSize, height: imageSize }}
               />
-            )}
-          </View>
-        )}
+              {isSelectMode && (
+                <Ionicons
+                  name={
+                    selectedImages.includes(item)
+                      ? "checkmark-circle"
+                      : "ellipse-outline"
+                  }
+                  size={24}
+                  color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
+                  style={styles.imageIcon}
+                />
+              )}
+            </View>
+          )}
           keyExtractor={(item) => item.id}
           numColumns={numColumns}
           style={styles.imageContainer}
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   imageContainer: {
-    alignSelf: "flex-start",
+    alignSelf: "center",
     marginTop: 8,
   },
   imageIcon: {

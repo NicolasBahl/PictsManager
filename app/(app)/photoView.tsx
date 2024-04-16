@@ -6,7 +6,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
-import { useCurrentAlbumsQuery, useUpdateTagPhotoMutation, useUpdatePhotoAlbumMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
+import { useAlbumsQuery, useUpdateTagPhotoMutation, useUpdatePhotoAlbumMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
 import { Button } from "@/components/ui/button";
 
 function PhotoView() {
@@ -27,7 +27,13 @@ function PhotoView() {
   const [updateTagPhoto] = useUpdateTagPhotoMutation();
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
-  const { data: albumData } = useCurrentAlbumsQuery();
+  const { data: albumData } = useAlbumsQuery({
+    variables: {
+      where: {
+        isWritableAlbum: true,
+      },
+    },
+  });
 
   const [updatePhotoAlbum] = useUpdatePhotoAlbumMutation();
 
@@ -178,12 +184,12 @@ function PhotoView() {
                 />
               </TouchableOpacity>
             </View>
-            {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
+            {albumData?.albums && albumData?.albums?.length > 0 && (
               <>
                 <Text style={styles.title}>Album</Text>
                 <AlbumSelector
-                  albums={albumData?.me?.albums ?? []}
-                  selectedAlbum={albumData?.me.albums.find((album) => album.id === selectedAlbum) ?? albumData?.me.albums[0]}
+                  albums={albumData?.albums ?? []}
+                  selectedAlbum={albumData.albums.find((album) => album.id === selectedAlbum) ?? albumData.albums[0]}
                   onAlbumSelect={setSelectedAlbum}
                 />
               </>

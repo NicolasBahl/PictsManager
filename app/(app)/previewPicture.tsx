@@ -18,7 +18,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import {
   useAddPhotoMutation,
   useCreateAlbumMutation,
-  useCurrentAlbumsQuery,
+  useAlbumsQuery,
 } from "@/graphql/generated/graphql";
 import { ReactNativeFile } from "apollo-upload-client";
 export default function ModalScreen() {
@@ -32,10 +32,16 @@ export default function ModalScreen() {
 
   const [title, setTitle] = useState<string>("");
 
-  const { data: albumData } = useCurrentAlbumsQuery();
+  const { data: albumData } = useAlbumsQuery({
+    variables: {
+      where: {
+        isWritableAlbum: true,
+      },
+    },
+  });
   const [addPhoto, { loading }] = useAddPhotoMutation();
 
-  const [createAlbum, {loading: loadingAlbumCreation}] = useCreateAlbumMutation();
+  const [createAlbum, { loading: loadingAlbumCreation }] = useCreateAlbumMutation();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
@@ -177,15 +183,15 @@ export default function ModalScreen() {
             <Text style={styles.buttonText}>Save</Text>
           </Button>
         </View>
-        {albumData?.me?.albums && albumData.me?.albums?.length > 0 && (
+        {albumData?.albums && albumData?.albums?.length > 0 && (
           <>
             <Text style={styles.title}>Album</Text>
             <AlbumSelector
-              albums={albumData?.me?.albums ?? []}
+              albums={albumData?.albums ?? []}
               selectedAlbum={
-                albumData?.me.albums.find(
+                albumData?.albums.find(
                   (album) => album.id === selectedAlbum,
-                ) ?? albumData?.me.albums[0]
+                ) ?? albumData.albums[0]
               }
               onAlbumSelect={setSelectedAlbum}
             />

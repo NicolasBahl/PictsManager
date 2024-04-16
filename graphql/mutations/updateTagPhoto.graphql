@@ -1,0 +1,8 @@
+mutation UpdateTagPhoto($id: ID!, $tags: [String!]!) {
+    updateTag(id: $id, tags: $tags) {
+        id
+        tags {
+            name
+        }
+    }
+}

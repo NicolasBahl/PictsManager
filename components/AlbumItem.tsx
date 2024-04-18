@@ -4,12 +4,14 @@ import { Text } from "@/components/Themed";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { Album } from "@/graphql/generated/graphql";
+import { Ionicons } from '@expo/vector-icons';
 
 interface AlbumItemProps {
   album: Pick<Album, "title" | "id">;
   isFirst: boolean;
   isLast: boolean;
   onSelect: () => void;
+  shared?: boolean;
 }
 
 const AlbumItem: React.FC<AlbumItemProps> = ({
@@ -17,6 +19,7 @@ const AlbumItem: React.FC<AlbumItemProps> = ({
   isFirst,
   isLast,
   onSelect,
+  shared = false,
 }) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
@@ -41,6 +44,14 @@ const AlbumItem: React.FC<AlbumItemProps> = ({
         style={styles.albumIcon}
       />
       <Text style={[styles.albumName]}>{album && album.title}</Text>
+      {shared &&
+        <Ionicons
+          name="people-sharp"
+          size={24}
+          color={isDarkMode ? Colors.dark.primary : Colors.light.primary}
+          style={styles.shared}
+        />
+      }
     </TouchableOpacity>
   );
 };
@@ -73,6 +84,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 8,
   },
+  shared: {
+    position: "absolute",
+    right: 16,
+  }
 });
 
 export default AlbumItem;

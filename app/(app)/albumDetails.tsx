@@ -16,6 +16,7 @@ import { ContextMenuButton } from "react-native-ios-context-menu";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import {
+  OrderBy,
   Photo,
   useDeletePhotoMutation,
   usePhotosQuery,
@@ -34,12 +35,15 @@ function AlbumDetails() {
   const [selectedImages, setSelectedImages] = useState<Pick<Photo, "id">[]>([]);
   const [isSelectMode, setIsSelectMode] = useState(false);
 
+  const [sortOrder, setSortOrder] = useState<OrderBy | null>(null);
+
   const { data: photosData, loading } = usePhotosQuery({
     variables: {
       where: {
         albumId: albumId !== 'no-album' ? albumId as string : undefined,
         search: text,
       },
+      orderBy: sortOrder ? { createdAt: sortOrder } : undefined,
     },
   });
 
@@ -205,7 +209,7 @@ function AlbumDetails() {
                       },
                     ],
                   },
-                    albumId !== 'no-album' &&
+                  albumId !== 'no-album' &&
                   {
                     actionKey: "settings",
                     actionTitle: "Settings",
@@ -246,8 +250,11 @@ function AlbumDetails() {
                 setIsSelectMode(false);
                 break;
               case "sort-date-asc":
+                setSortOrder(OrderBy.Asc)
                 break;
               case "sort-date-desc":
+                // J'utilise null car Asc et Desc font la même chose dans le backend
+                setSortOrder(null)
                 break;
               case "settings":
                 router.push({

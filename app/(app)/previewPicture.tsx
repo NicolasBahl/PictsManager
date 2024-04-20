@@ -20,6 +20,7 @@ import {
   useCreateAlbumMutation,
   useAlbumsQuery,
 } from "@/graphql/generated/graphql";
+import { useAuth } from "@/providers/AuthProvider";
 import { ReactNativeFile } from "apollo-upload-client";
 export default function ModalScreen() {
   const { uri, metadata } = useLocalSearchParams();
@@ -31,6 +32,8 @@ export default function ModalScreen() {
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
 
   const [title, setTitle] = useState<string>("");
+
+  const { me } = useAuth();
 
   const { data: albumData } = useAlbumsQuery({
     variables: {
@@ -187,13 +190,14 @@ export default function ModalScreen() {
           <>
             <Text style={styles.title}>Album</Text>
             <AlbumSelector
-              albums={albumData?.albums ?? []}
+              albums={albumData?.albums}
               selectedAlbum={
                 albumData?.albums.find(
                   (album) => album.id === selectedAlbum,
                 ) ?? albumData.albums[0]
               }
               onAlbumSelect={setSelectedAlbum}
+              userId={me?.id as string}
             />
           </>
         )}

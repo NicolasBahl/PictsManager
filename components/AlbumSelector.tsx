@@ -8,19 +8,21 @@ import {
   LayoutChangeEvent,
 } from "react-native";
 import AlbumItem from "./AlbumItem";
-import { Album } from "@/graphql/generated/graphql";
+import { Album, User } from "@/graphql/generated/graphql";
 interface AlbumSelectorProps {
-  albums: Pick<Album, "id" | "title">[];
+  albums: (Pick<Album, "id" | "title"> & { owner: Pick<User, "id"> })[];
   selectedAlbum: Pick<Album, "id" | "title">;
   onAlbumSelect: (album: string | null) => void;
   onSelect?: () => void;
   onLayout?: (event: LayoutChangeEvent) => void;
+  userId?: string;
 }
 
 export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
   albums,
   selectedAlbum,
   onAlbumSelect,
+  userId = "",
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
@@ -51,6 +53,11 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
           isFirst={true}
           isLast={true}
           onSelect={handlePress}
+          shared={
+            albums.find((album) => album.id === selectedAlbum.id)
+              ? (selectedAlbum as Album & { owner: User }).owner.id !== userId
+              : albums[0].owner.id !== userId
+          }
         />
       </View>
       <Modal
@@ -73,9 +80,9 @@ export const AlbumSelector: React.FC<AlbumSelectorProps> = ({
                 isLast={index === albums.length - 1}
                 onSelect={() => {
                   onAlbumSelect(album.id);
-
                   setIsMenuOpen(false);
                 }}
+                shared={album.owner.id !== userId}
               />
             ))}
           </ScrollView>

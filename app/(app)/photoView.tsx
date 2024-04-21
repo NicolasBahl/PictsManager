@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Text, View, BackgroundColor } from "@/components/Themed";
 import { TouchableOpacity, StyleSheet, Image, Modal, TextInput, TextInputChangeEventData, NativeSyntheticEvent, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
 import { useAlbumsQuery, useUpdateTagPhotoMutation, useUpdatePhotoAlbumMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/providers/AuthProvider";
 
 function PhotoView() {
   const { id, url, tags, albumId, albumName } = useLocalSearchParams();
@@ -25,6 +26,30 @@ function PhotoView() {
   const inputRef = useRef<TextInput | null>(null);
 
   const [updateTagPhoto] = useUpdateTagPhotoMutation();
+
+  const [imageSize, setImageSize] = useState<{ width: number, height: number } | null>(null);
+  const [fileSize, setFileSize] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof url === 'string') {
+      Image.getSize(url, (width, height) => {
+        setImageSize({ width, height });
+      });
+      fetch(url).then(response => {
+        const contentLength = response.headers.get('Content-Length');
+        if (contentLength) {
+          const fileSizeInKb = parseInt(contentLength) / 1024;
+          if (fileSizeInKb < 1024) {
+            setFileSize(fileSizeInKb.toFixed(2) + " KB");
+          } else {
+            setFileSize((fileSizeInKb / 1024).toFixed(2) + " MB");
+          }
+        }
+      });
+    }
+  }, [url]);
+
+  const { me } = useAuth();
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
   const { data: albumData } = useAlbumsQuery({
@@ -152,6 +177,10 @@ function PhotoView() {
           <View style={[styles.modalView, {
             backgroundColor: isDarkMode ? "black" : "white",
           }]}>
+            <View style={styles.containerStats}>
+              <Text style={styles.stats}>{imageSize?.width} x {imageSize?.height}</Text>
+              <Text style={styles.stats}>{fileSize}</Text>
+            </View>
             <Text style={styles.title}>Tags</Text>
             <View
               style={styles.tagsInputContainer}
@@ -191,6 +220,7 @@ function PhotoView() {
                   albums={albumData?.albums ?? []}
                   selectedAlbum={albumData.albums.find((album) => album.id === selectedAlbum) ?? albumData.albums[0]}
                   onAlbumSelect={setSelectedAlbum}
+                  userId={me?.id as string}
                 />
               </>
             )}
@@ -322,6 +352,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     width: "80%",
+  },
+  containerStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+    backgroundColor: "transparent",
+    marginTop: 12,
+  },
+  stats: {
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
 

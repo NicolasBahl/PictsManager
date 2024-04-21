@@ -15,6 +15,7 @@ import {
   useCreateAlbumMutation,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
+import { useAuth } from "@/providers/AuthProvider";
 
 
 export default function Albums() {
@@ -26,6 +27,8 @@ export default function Albums() {
   const [size, setSize] = useState<OrderBy>(OrderBy.Desc);
   const [updatedAt, setUpdateAt] = useState(OrderBy.Desc);
   const [title, setTitle] = useState(OrderBy.Desc);
+
+  const { me } = useAuth();
 
   const {
     data: albums,
@@ -126,8 +129,7 @@ export default function Albums() {
                     },
                   },
                 ],
-              }
-              : {
+              } : {
                 menuTitle: "",
                 menuItems: [
                   {
@@ -326,6 +328,7 @@ export default function Albums() {
                   isFirst={true}
                   isLast={true}
                   onSelect={() => handleSelect(album as Album)}
+                  shared={album.owner.id != me?.id}
                 />
               </View>
             ))
@@ -344,7 +347,7 @@ export default function Albums() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </View >
   );
 }
 

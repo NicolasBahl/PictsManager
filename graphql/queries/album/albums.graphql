@@ -2,5 +2,8 @@ query Albums($orderBy: AlbumOrderBy, $skip: Int, $take: Int, $where: WhereAlbumI
     albums(orderBy: $orderBy, skip: $skip, take: $take, where: $where) {
         id
         title
+        owner {
+            id
+        }
     }
 }

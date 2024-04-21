@@ -14,6 +14,7 @@ import {
   useAlbumsQuery,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
+import { useAuth } from "@/providers/AuthProvider";
 
 
 export default function Albums() {
@@ -25,6 +26,8 @@ export default function Albums() {
   const [size, setSize] = useState<OrderBy>(OrderBy.Desc);
   const [updatedAt, setUpdateAt] = useState(OrderBy.Desc);
   const [title, setTitle] = useState(OrderBy.Desc);
+
+  const { me } = useAuth();
 
   const {
     data: albums,
@@ -87,99 +90,99 @@ export default function Albums() {
           menuConfig={
             isSelectMode
               ? {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "selectAll",
-                      actionTitle:
-                        selectedAlbums.length === albums?.albums.length
-                          ? "Unselect All"
-                          : "Select All",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "selectAll",
+                    actionTitle:
+                      selectedAlbums.length === albums?.albums.length
+                        ? "Unselect All"
+                        : "Select All",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      actionKey: "delete",
-                      actionTitle: "Delete",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "trash",
-                        },
+                  },
+                  {
+                    actionKey: "delete",
+                    actionTitle: "Delete",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "trash",
                       },
                     },
-                    {
-                      actionKey: "cancel",
-                      actionTitle: "Cancel",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "xmark",
-                        },
+                  },
+                  {
+                    actionKey: "cancel",
+                    actionTitle: "Cancel",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "xmark",
                       },
                     },
-                  ],
-                }
+                  },
+                ],
+              }
               : {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "select",
-                      actionTitle: "Select",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "select",
+                    actionTitle: "Select",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      menuTitle: "Sort",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "arrow.up.arrow.down",
+                  },
+                  {
+                    menuTitle: "Sort",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "arrow.up.arrow.down",
+                      },
+                    },
+                    menuItems: [
+                      {
+                        actionKey: "sort-name",
+                        actionTitle: `Name ${title}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "textformat.abc",
+                          },
                         },
                       },
-                      menuItems: [
-                        {
-                          actionKey: "sort-name",
-                          actionTitle: `Name ${title}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "textformat.abc",
-                            },
+                      {
+                        actionKey: "sort-date",
+                        actionTitle: `Date ${updatedAt}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "calendar",
                           },
                         },
-                        {
-                          actionKey: "sort-date",
-                          actionTitle: `Date ${updatedAt}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "calendar",
-                            },
+                      },
+                      {
+                        actionKey: "sort-size",
+                        actionTitle: `Size ${size}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "square.grid.2x2",
                           },
                         },
-                        {
-                          actionKey: "sort-size",
-                          actionTitle: `Size ${size}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "square.grid.2x2",
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                }
+                      },
+                    ],
+                  },
+                ],
+              }
           }
           onPressMenuItem={({ nativeEvent }) => {
             if (nativeEvent.actionKey === "select") {
@@ -286,6 +289,7 @@ export default function Albums() {
                   isFirst={true}
                   isLast={true}
                   onSelect={() => handleSelect(album as Album)}
+                  shared={album.owner.id != me?.id}
                 />
               </View>
             ))

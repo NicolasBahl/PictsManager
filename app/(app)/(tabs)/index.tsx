@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
+import { ActivityIndicator, Alert, RefreshControl, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, Text, View } from "@/components/Themed";
 import SearchBar from "@/components/SearchBar";
@@ -12,6 +12,7 @@ import {
   Album,
   OrderBy,
   useAlbumsQuery,
+  useCreateAlbumMutation,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
 import { useAuth } from "@/providers/AuthProvider";
@@ -58,6 +59,8 @@ export default function Albums() {
     setRefreshing(false);
   };
   const [deleteAlbum] = useDeleteAlbumMutation();
+
+  const [createAlbum, { loading: loadingAlbumCreation }] = useCreateAlbumMutation();
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -126,8 +129,7 @@ export default function Albums() {
                     },
                   },
                 ],
-              }
-              : {
+              } : {
                 menuTitle: "",
                 menuItems: [
                   {
@@ -181,6 +183,16 @@ export default function Albums() {
                       },
                     ],
                   },
+                  {
+                    actionKey: "add",
+                    actionTitle: "Add Album",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "plus",
+                      },
+                    },
+                  }
                 ],
               }
           }
@@ -209,6 +221,7 @@ export default function Albums() {
                 });
               }
               setSelectedAlbums([]);
+              setIsSelectMode(false);
             } else if (nativeEvent.actionKey === "sort-name") {
               setTitle(title === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc);
             } else if (nativeEvent.actionKey === "sort-size") {
@@ -216,6 +229,32 @@ export default function Albums() {
             } else if (nativeEvent.actionKey === "sort-date") {
               setUpdateAt(
                 updatedAt === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc,
+              );
+            } else if (nativeEvent.actionKey === "add") {
+              Alert.prompt(
+                "New Album",
+                "Enter the name of the new album:",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "OK",
+                    onPress: (text) => {
+                      if ((text as string).trim() !== "") {
+                        createAlbum({
+                          variables: {
+                            title: text as string,
+                          },
+                          refetchQueries: ["Albums"],
+                        });
+                      } else {
+                        Alert.alert("Error", "Album name cannot be empty");
+                      }
+                    },
+                  },
+                ]
               );
             }
           }}
@@ -308,7 +347,7 @@ export default function Albums() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </View >
   );
 }
 

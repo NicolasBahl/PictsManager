@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
+import { ActivityIndicator, Alert, RefreshControl, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, Text, View } from "@/components/Themed";
 import SearchBar from "@/components/SearchBar";
@@ -12,6 +12,7 @@ import {
   Album,
   OrderBy,
   useAlbumsQuery,
+  useCreateAlbumMutation,
   useDeleteAlbumMutation,
 } from "@/graphql/generated/graphql";
 
@@ -56,6 +57,8 @@ export default function Albums() {
   };
   const [deleteAlbum] = useDeleteAlbumMutation();
 
+  const [createAlbum, { loading: loadingAlbumCreation }] = useCreateAlbumMutation();
+
   const [refreshing, setRefreshing] = React.useState(false);
 
   const [selectedAlbums, setSelectedAlbums] = useState<
@@ -87,99 +90,109 @@ export default function Albums() {
           menuConfig={
             isSelectMode
               ? {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "selectAll",
-                      actionTitle:
-                        selectedAlbums.length === albums?.albums.length
-                          ? "Unselect All"
-                          : "Select All",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "selectAll",
+                    actionTitle:
+                      selectedAlbums.length === albums?.albums.length
+                        ? "Unselect All"
+                        : "Select All",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      actionKey: "delete",
-                      actionTitle: "Delete",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "trash",
-                        },
+                  },
+                  {
+                    actionKey: "delete",
+                    actionTitle: "Delete",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "trash",
                       },
                     },
-                    {
-                      actionKey: "cancel",
-                      actionTitle: "Cancel",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "xmark",
-                        },
+                  },
+                  {
+                    actionKey: "cancel",
+                    actionTitle: "Cancel",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "xmark",
                       },
                     },
-                  ],
-                }
+                  },
+                ],
+              }
               : {
-                  menuTitle: "",
-                  menuItems: [
-                    {
-                      actionKey: "select",
-                      actionTitle: "Select",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "checkmark",
-                        },
+                menuTitle: "",
+                menuItems: [
+                  {
+                    actionKey: "select",
+                    actionTitle: "Select",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "checkmark",
                       },
                     },
-                    {
-                      menuTitle: "Sort",
-                      icon: {
-                        type: "IMAGE_SYSTEM",
-                        imageValue: {
-                          systemName: "arrow.up.arrow.down",
+                  },
+                  {
+                    menuTitle: "Sort",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "arrow.up.arrow.down",
+                      },
+                    },
+                    menuItems: [
+                      {
+                        actionKey: "sort-name",
+                        actionTitle: `Name ${title}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "textformat.abc",
+                          },
                         },
                       },
-                      menuItems: [
-                        {
-                          actionKey: "sort-name",
-                          actionTitle: `Name ${title}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "textformat.abc",
-                            },
+                      {
+                        actionKey: "sort-date",
+                        actionTitle: `Date ${updatedAt}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "calendar",
                           },
                         },
-                        {
-                          actionKey: "sort-date",
-                          actionTitle: `Date ${updatedAt}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "calendar",
-                            },
+                      },
+                      {
+                        actionKey: "sort-size",
+                        actionTitle: `Size ${size}`,
+                        icon: {
+                          type: "IMAGE_SYSTEM",
+                          imageValue: {
+                            systemName: "square.grid.2x2",
                           },
                         },
-                        {
-                          actionKey: "sort-size",
-                          actionTitle: `Size ${size}`,
-                          icon: {
-                            type: "IMAGE_SYSTEM",
-                            imageValue: {
-                              systemName: "square.grid.2x2",
-                            },
-                          },
-                        },
-                      ],
+                      },
+                    ],
+                  },
+                  {
+                    actionKey: "add",
+                    actionTitle: "Add Album",
+                    icon: {
+                      type: "IMAGE_SYSTEM",
+                      imageValue: {
+                        systemName: "plus",
+                      },
                     },
-                  ],
-                }
+                  }
+                ],
+              }
           }
           onPressMenuItem={({ nativeEvent }) => {
             if (nativeEvent.actionKey === "select") {
@@ -206,6 +219,7 @@ export default function Albums() {
                 });
               }
               setSelectedAlbums([]);
+              setIsSelectMode(false);
             } else if (nativeEvent.actionKey === "sort-name") {
               setTitle(title === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc);
             } else if (nativeEvent.actionKey === "sort-size") {
@@ -213,6 +227,32 @@ export default function Albums() {
             } else if (nativeEvent.actionKey === "sort-date") {
               setUpdateAt(
                 updatedAt === OrderBy.Desc ? OrderBy.Asc : OrderBy.Desc,
+              );
+            } else if (nativeEvent.actionKey === "add") {
+              Alert.prompt(
+                "New Album",
+                "Enter the name of the new album:",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "OK",
+                    onPress: (text) => {
+                      if ((text as string).trim() !== "") {
+                        createAlbum({
+                          variables: {
+                            title: text as string,
+                          },
+                          refetchQueries: ["Albums"],
+                        });
+                      } else {
+                        Alert.alert("Error", "Album name cannot be empty");
+                      }
+                    },
+                  },
+                ]
               );
             }
           }}

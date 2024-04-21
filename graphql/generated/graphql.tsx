@@ -352,7 +352,7 @@ export type AlbumsQueryVariables = Exact<{
 }>;
 
 
-export type AlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'Album', id: string, title: string }> };
+export type AlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'Album', id: string, title: string, owner: { __typename?: 'User', id: string } }> };
 
 export type CurrentAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -834,6 +834,9 @@ export const AlbumsDocument = gql`
   albums(orderBy: $orderBy, skip: $skip, take: $take, where: $where) {
     id
     title
+    owner {
+      id
+    }
   }
 }
     `;

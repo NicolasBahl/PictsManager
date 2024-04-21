@@ -8,6 +8,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { AlbumSelector } from "@/components/AlbumSelector";
 import { useAlbumsQuery, useUpdateTagPhotoMutation, useUpdatePhotoAlbumMutation, useDeletePhotoMutation } from "@/graphql/generated/graphql";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/providers/AuthProvider";
 
 function PhotoView() {
   const { id, url, tags, albumId, albumName } = useLocalSearchParams();
@@ -47,6 +48,8 @@ function PhotoView() {
       });
     }
   }, [url]);
+
+  const { me } = useAuth();
 
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(Array.isArray(albumId) ? albumId[0] : albumId || null);
   const { data: albumData } = useAlbumsQuery({
@@ -217,6 +220,7 @@ function PhotoView() {
                   albums={albumData?.albums ?? []}
                   selectedAlbum={albumData.albums.find((album) => album.id === selectedAlbum) ?? albumData.albums[0]}
                   onAlbumSelect={setSelectedAlbum}
+                  userId={me?.id as string}
                 />
               </>
             )}
